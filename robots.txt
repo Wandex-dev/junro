@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://wandex-dev.github.io/junro/sitemap.xml
