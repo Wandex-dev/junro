@@ -241,6 +241,12 @@ form.answer label { font-size: 13px; color: var(--muted); }
 .gate-box ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
 .gate-box a.cta { justify-self: start; text-decoration: none; display: inline-block; }
 .muted { margin: 0; font-size: 14px; color: var(--muted); }
+.share-box { border: 1.5px dashed var(--ink); padding: 14px 16px; display: grid; gap: 10px; }
+.share-box .tag { font-family: var(--num); font-size: 10px; letter-spacing: .14em; color: var(--muted); }
+.share-box img { width: 100%; max-width: 240px; border: 1px solid var(--ink); }
+.share-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.share-btn { appearance: none; border: 1.5px solid var(--ink); background: var(--panel); color: var(--ink); padding: 11px 16px; font-weight: 700; font-size: 15px; border-radius: 2px; cursor: pointer; text-decoration: none; display: inline-block; }
+#ending .share-btn { border-color: #5a554e; background: transparent; color: #e8e2d8; }
 .assist { appearance: none; justify-self: start; border: 0; background: none; padding: 4px 0; font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .strips.force-row { flex-direction: row; gap: 0; }
 .strips.force-row .lbl { visibility: hidden; }
@@ -290,6 +296,7 @@ form.answer label { font-size: 13px; color: var(--muted); }
   const UNLOCK = "b7jp71cpce";
   const SHOP_URL = 'https://yajirushi-shobo.booth.pm/items/9117261';
   const PRICE_LABEL = '500円';
+  const SITE_URL = 'https://wandex-dev.github.io/junro/zero7mm/';
   const SEAL_B64 = "TAwOXCVg6uFTDFdP5NsCILa9juysuRBH1KzmTyt44+ENdU+JuPt0TIDN7MPhxjomh5CO7Ky5EULQk9+Il9dyQrvI2tbk2xkgtaeO74u5EGXUr+mOhsVyQ7UMQU/k2h0rlKGE8KW8KW/eqeKIpPFyQ7fN7svk2D4gtISO7Yp4zL4bDA5fJWDq4VMMV0/k2yMgtqKO7JB4veFFDFc2JbkSZdSswo6E8HJCmMj18uTYAySCvo7vlLkQZNSu7IuR43lkpc3v/+HBKSC2o4vDjLkQVNSvy46G3nJCqM3t7yV2syawlIjipLkQbNSu7Iua63JCnM3s7+TYGiC3rE8wenazoAQMVxYlPrP5Fc3s0uTbOyC2qo7soHi94UUMVzYluBFl1a7Ljob6ckK8ze/k5NoQILasjuytuRBc1K/hipz0ckGlx/bP5NsGILaxjuyeuRBO1K/Gi4jVckKzzezy5Ns/ILesTzB6drOgAwxXFiU+s/kVzezg5NsCILamju+MtS1cFQJPHyVgyuHetcWOhtZyQbPN7/7k2zEnj66K86u5EULUr8KOhsJyQbbN7Mvi+SEgtqKI3I25EEfUr/KOh9iz7xXN7O/k2BsgtqKO7K+5EEXUru+OhdhyQrHN7ezk2wggtr6O7Jq5EFDUr9OOhv13XpLN7Mvk2Bogt6xPMHp2s6ACDFcWJT6z+RXN7Obk2x0gtpFPQSUos/lsDIjqvb8eYNSvwo6H23hMls3t7yUH7O8VSAQDJWDq4URaAh9+eKuYFcvq1+LVMiC2gY7thrMeYtSu708reHJCqs3v4eTbPiC3r47shbkQadSv8o6G9HdKvM3sw+PiPCC2hY7shbkTSNSu74iC03JCu8jb5eTbGSC2sY7sr7kQTtSvxo6G+nJCpsni0+TYHSC1pY7thrkQR9SvzI6G6nJBpMbXxu/lACC2hITiprkRQRVzEEElLaXhDQyO7Iq5EFDUr+WOhdF+f6gMQU9wb7P5Fc3s5uTbHSC2kU8Q";
   const SEAL = (() => { const K = [0x37, 0x2e, 0x6d, 0x6d, 0x07, 0x5a, 0x91, 0xc3];
     const b = Uint8Array.from(atob(SEAL_B64), c => c.charCodeAt(0)).map((v, i) => v ^ K[i % K.length]);
@@ -526,6 +533,13 @@ form.answer label { font-size: 13px; color: var(--muted); }
         ${SHOP_URL ? `<a class="cta" href="${SHOP_URL}" target="_blank" rel="noopener">製品版を購入する${PRICE_LABEL ? '（' + PRICE_LABEL + '）' : ''}</a>` : `<p class="muted">製品版の販売ページは準備中です。</p>`}
         <p class="muted">体験版の進み具合は、この端末に保存されています。解除コードを入れると、続きの第2章から始まります。</p>
       </div>
+      <div class="share-box">
+        <span class="tag">RECEIVED / 第1章 受信記録</span>
+        <p class="muted">答えも仕掛けも写らない記録カードです。誰かに届けると、彼女の信号が少し遠くまで届きます。</p>
+        <img id="share-img" alt="第1章の受信記録カード" hidden>
+        <div class="share-row"><button class="share-btn" type="button" id="share-go">記録をシェアする</button><a class="share-btn" id="share-line" target="_blank" rel="noopener">LINEで送る</a></div>
+        <p class="muted" id="share-msg" aria-live="polite"></p>
+      </div>
       <form class="answer" id="unlock-form" autocomplete="off">
         <label for="unlock">製品版の解除コード（購入後のファイルに記載）</label>
         <div class="row"><input id="unlock" type="text" autocapitalize="characters" spellcheck="false" enterkeyhint="go"><button type="submit">解除</button></div>
@@ -534,6 +548,8 @@ form.answer label { font-size: 13px; color: var(--muted); }
     </section>`;
   }
   function mountGate(target) {
+    if (!state.trialAt) { state.trialAt = Date.now(); save(); }
+    mountShare('trial');
     $('#unlock-form').addEventListener('submit', e => {
       e.preventDefault();
       const code = $('#unlock').value.normalize('NFKC').toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -929,6 +945,8 @@ form.answer label { font-size: 13px; color: var(--muted); }
         <div>開いたヒント</div><div>${hints} / 18</div>
       </div>
       <p class="end-note" style="margin-top:14px">共有するときは、答えと仕掛けは伏せて。<br>#画面の裏の測量士</p>
+      <div class="share-row" style="justify-content:center;margin-top:10px"><button class="share-btn" type="button" id="share-go">測量記録をシェアする</button><a class="share-btn" id="share-line" target="_blank" rel="noopener">LINEで送る</a></div>
+      <img id="share-img" alt="測量記録カード" hidden><p class="end-note" id="share-msg" aria-live="polite"></p>
       <section class="take" aria-label="クリア特典">
         <h3 class="take-h">持ち帰り</h3>
         <div class="take-grid">
@@ -950,7 +968,70 @@ form.answer label { font-size: 13px; color: var(--muted); }
       <button class="end-btn" type="button" id="end-close" style="margin-top:10px">記録を閉じる</button>`;
     requestAnimationFrame(() => et.classList.add('on'));
     mountTakeaways();
+    mountShare('clear');
     $('#end-close').addEventListener('click', () => { box.classList.remove('on'); box.hidden = true; ended = false; go('title'); });
+  }
+
+  /* ---------- 記録カードのシェア（答えと仕掛けは載せない） ---------- */
+  function shareInfo(kind) {
+    const end = kind === 'trial' ? (state.trialAt || Date.now()) : (state.endAt || Date.now());
+    const mins = state.startAt ? Math.max(1, Math.round((end - state.startAt) / 60000)) : null;
+    const text = kind === 'trial'
+      ? `スマホの画面の0.7ミリ向こうから、合図が届いた。第1章、受信完了${mins ? '（' + mins + '分）' : ''}。\n#画面の裏の測量士`
+      : `ガラスの向こうまで、測量完了${mins ? '（' + mins + '分）' : ''}。\n#画面の裏の測量士`;
+    return { mins, text };
+  }
+  async function drawShareCard(kind) {
+    await fontsReady('0.7mm画面の裏の測量士第1章受信完了全章測量所要分個体番号');
+    const W = 1080, cv = document.createElement('canvas'); cv.width = W; cv.height = W;
+    const x = cv.getContext('2d'), { mins } = shareInfo(kind);
+    x.fillStyle = '#f3f5f7'; x.fillRect(0, 0, W, W);
+    for (let k = 0; k <= W; k += 24) { x.strokeStyle = k % 120 === 0 ? '#c9d0d8' : '#dde2e8'; x.lineWidth = k % 120 === 0 ? 1.5 : 1;
+      x.beginPath(); x.moveTo(k, 0); x.lineTo(k, W); x.moveTo(0, k); x.lineTo(W, k); x.stroke(); }
+    x.fillStyle = 'rgba(243,245,247,.94)'; x.fillRect(54, 54, W - 108, W - 108);
+    x.strokeStyle = '#111821'; x.lineWidth = 3; x.strokeRect(54, 54, W - 108, W - 108);
+    x.fillStyle = '#5b6673'; x.font = '400 26px "IBM Plex Mono"'; x.textBaseline = 'alphabetic';
+    x.fillText(kind === 'trial' ? 'RECEIVED / CH.1' : 'SURVEY COMPLETE', 100, 130);
+    x.textAlign = 'right'; x.fillText('No. ' + (state.serial || '----'), W - 100, 130); x.textAlign = 'left';
+    x.fillStyle = '#111821'; x.font = '300 300px "IBM Plex Mono"'; x.fillText('0.7', 82, 420);
+    const w07 = x.measureText('0.7').width; x.fillStyle = '#5b6673'; x.font = '300 96px "IBM Plex Mono"'; x.fillText('mm', 82 + w07 + 6, 420);
+    x.fillStyle = '#111821'; x.font = '84px "DotGothic16"'; x.fillText('画面の裏の測量士', 98, 540);
+    // ガラスの断面と、裏面の格子
+    const gy = 590; x.lineWidth = 3; x.beginPath(); x.moveTo(98, gy); x.lineTo(W - 98, gy); x.moveTo(98, gy + 50); x.lineTo(W - 98, gy + 50); x.stroke();
+    x.save(); x.beginPath(); x.rect(98, gy, W - 196, 50); x.clip(); x.lineWidth = 2;
+    for (let k = 60; k < W + 60; k += 18) { x.beginPath(); x.moveTo(k, gy + 50); x.lineTo(k + 36, gy); x.stroke(); } x.restore();
+    const cell = 32, gx = 98, gy2 = gy + 66; x.strokeStyle = '#9aa5b1'; x.lineWidth = 1;
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 27; c++) x.strokeRect(gx + c * cell, gy2 + r * cell, cell, cell);
+    const sc = serialCell(); x.save(); x.shadowColor = 'rgba(211,79,42,.6)'; x.shadowBlur = 24; x.fillStyle = '#d34f2a';
+    x.fillRect(gx + (sc.c % 27) * cell + 2, gy2 + (sc.r % 3) * cell + 2, cell - 4, cell - 4); x.restore();
+    // 記録
+    x.fillStyle = '#111821'; x.font = '900 60px "Zen Kaku Gothic New"';
+    x.fillText(kind === 'trial' ? '第1章　受信完了' : '全章　測量完了', 98, 860);
+    x.fillStyle = '#d34f2a'; x.font = '500 50px "IBM Plex Mono"'; x.textAlign = 'right';
+    x.fillText(mins ? mins + ' min' : '', W - 98, 860); x.textAlign = 'left';
+    x.fillStyle = '#5b6673'; x.font = '400 26px "IBM Plex Mono"'; x.fillText(SITE_URL.replace('https://', ''), 98, 950);
+    x.textAlign = 'right'; x.font = '700 28px "Zen Kaku Gothic New"'; x.fillText('#画面の裏の測量士', W - 98, 950); x.textAlign = 'left';
+    return cv;
+  }
+  async function mountShare(kind) {
+    const go = $('#share-go'), line = $('#share-line'), img = $('#share-img'), msg = $('#share-msg');
+    if (!go) return;
+    const { text } = shareInfo(kind);
+    line.href = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(SITE_URL) + '&text=' + encodeURIComponent(text);
+    let file = null;
+    drawShareCard(kind).then(cv => {
+      img.src = cv.toDataURL('image/png'); img.hidden = kind !== 'trial';
+      cv.toBlob(b => { if (b) file = new File([b], '07mm_record.png', { type: 'image/png' }); }, 'image/png');
+    }).catch(() => {});
+    go.addEventListener('click', async () => {
+      const full = text + '\n' + SITE_URL;
+      try {
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: full }); return; }
+        if (navigator.share) { await navigator.share({ text, url: SITE_URL }); return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+      try { await navigator.clipboard.writeText(full); msg.textContent = '文面とURLをコピーしました。'; } catch (e) { msg.textContent = full; }
+      window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(SITE_URL), '_blank', 'noopener');
+    });
   }
 
   /* ---------- 持ち帰り（壁紙・証明書） ---------- */

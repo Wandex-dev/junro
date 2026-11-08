@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>スマホで遊べる無料のWeb謎解き『0.7mm 画面の裏の測量士』｜インストール不要・第1章まで無料</title>
+<meta name="description" content="スマホのブラウザだけで遊べるWeb謎解き。キーボード、画面の明るさ、電波、画面の向き――端末にもともとある機能を使って解く。序章と第1章は無料・登録不要。所要40〜60分、ヒントつきで初めてでも最後まで遊べます。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="スマホで遊べる無料のWeb謎解き『0.7mm 画面の裏の測量士』">
+<meta property="og:description" content="端末にもともとある機能だけで解くWeb謎解き。序章と第1章は無料・登録不要。">
+<meta property="og:url" content="https://wandex-dev.github.io/junro/zero7mm/guide.html">
+<meta property="og:image" content="https://wandex-dev.github.io/junro/zero7mm/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://wandex-dev.github.io/junro/zero7mm/guide.html">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"VideoGame","name":"0.7mm 画面の裏の測量士","url":"https://wandex-dev.github.io/junro/zero7mm/","image":"https://wandex-dev.github.io/junro/zero7mm/og.png","genre":["謎解き","パズル"],"gamePlatform":["Webブラウザ","スマートフォン"],"playMode":"SinglePlayer","inLanguage":"ja","description":"スマホの画面の0.7ミリ向こう側に閉じ込められた測量士から届く合図を、端末にもともとある機能で読み解くWeb謎解き。","author":{"@type":"Organization","name":"矢印書房","url":"https://yajirushi-shobo.booth.pm/"},"offers":[{"@type":"Offer","name":"体験版（序章・第1章）","price":"0","priceCurrency":"JPY","url":"https://wandex-dev.github.io/junro/zero7mm/"},{"@type":"Offer","name":"製品版","price":"500","priceCurrency":"JPY","url":"https://yajirushi-shobo.booth.pm/items/9117261"}]},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"無料でどこまで遊べますか？","acceptedAnswer":{"@type":"Answer","text":"序章と第1章（約10〜15分）は無料です。登録やインストールは不要で、URLを開くだけで遊べます。第2章から終章までは製品版（500円）の解除コードで開きます。"}},
+{"@type":"Question","name":"どんな端末で遊べますか？","acceptedAnswer":{"@type":"Answer","text":"iPhone・Androidのブラウザ（Safari・Chromeなど）を推奨しています。PCやタブレットのブラウザでも遊べます。"}},
+{"@type":"Question","name":"謎解きが初めてでも解けますか？","acceptedAnswer":{"@type":"Answer","text":"各章に3段階のヒントがあります。知識はいりません。必要なのは、手の中のスマホをいつもと違う目で見ることだけです。"}},
+{"@type":"Question","name":"途中でやめても続きから遊べますか？","acceptedAnswer":{"@type":"Answer","text":"進み具合はブラウザに保存され、同じ端末・同じブラウザで開けば続きから遊べます。プライベートブラウズでは保存されない場合があります。"}}]}]}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=IBM+Plex+Mono:wght@300;400&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111821;--sub:#5b6673;--paper:#f3f5f7;--panel:#fff;--grid:#dde2e8;--her:#d34f2a}
+@media (prefers-color-scheme:dark){:root{--ink:#e8edf3;--sub:#9aa5b1;--paper:#0d1117;--panel:#151b23;--grid:#1c232c;--her:#ffa94a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Zen Kaku Gothic New',sans-serif;font-size:17px;line-height:1.9;
+background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+main{max-width:720px;margin:0 auto;padding:28px 16px 64px}
+.mono{font-family:'IBM Plex Mono',monospace}.dot{font-family:'DotGothic16',sans-serif}
+.kicker{font-family:'IBM Plex Mono';font-size:12px;letter-spacing:.18em;color:var(--sub)}
+h1{font-size:28px;line-height:1.45;margin:6px 0 4px}
+.big{font-family:'IBM Plex Mono';font-weight:300;font-size:84px;line-height:1;margin:18px 0 0}.big small{font-size:30px;color:var(--sub)}
+.title{font-family:'DotGothic16';font-size:32px;margin:4px 0 18px}
+h2{font-size:21px;margin:40px 0 10px;padding-bottom:6px;border-bottom:1.5px solid var(--ink)}
+.panel{background:var(--panel);border:1.5px solid var(--ink);padding:16px 18px;margin:16px 0}
+.cta{display:inline-block;background:var(--her);color:#fff;font-weight:900;padding:14px 22px;text-decoration:none;border-radius:2px;margin:6px 8px 6px 0}
+.cta.sub{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.feats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0;padding:0;list-style:none}
+.feats li{background:var(--panel);border:1.5px solid var(--ink);padding:12px;font-weight:700;text-align:center}
+dl{margin:0}dt{font-weight:900;margin-top:14px}dd{margin:2px 0 0}
+table{border-collapse:collapse;width:100%;background:var(--panel)}td,th{border:1px solid var(--sub);padding:8px 10px;text-align:left;vertical-align:top;font-size:15px}th{white-space:nowrap;width:7em}
+footer{margin-top:44px;font-size:13px;color:var(--sub)}
+a{color:var(--her)}
+</style>
+</head>
+<body>
+<main>
+<div class="kicker">WEB PUZZLE / スマホで遊べるWeb謎解き</div>
+<h1>スマホのブラウザだけで遊べる、無料のWeb謎解き</h1>
+<div class="big">0.7<small>mm</small></div>
+<div class="title">画面の裏の測量士</div>
+<p>あなたのスマホの画面の、0.7ミリ向こう側。そこに、ひとりの測量士が閉じ込められている。彼女は話せない。届くのは、点と線だけ。</p>
+<p><a class="cta" href="./">無料で遊ぶ（第1章まで・登録不要）</a><a class="cta sub" href="https://yajirushi-shobo.booth.pm/items/9117261">製品版（500円）</a></p>
+
+<h2>どんな謎解き？</h2>
+<p>紙もペンも、アプリの追加もいりません。手がかりは、あなたの端末にもともとある機能だけです。</p>
+<ul class="feats"><li>キーボード</li><li>画面の明るさ</li><li>電波</li><li>画面の向き</li></ul>
+<p>いつも使っているはずの機能が、ある瞬間にまったく別の意味を持ちはじめる。知識の量ではなく、ひらめきで解く謎解きです。</p>
+
+<h2>作品の情報</h2>
+<table>
+<tr><th>構成</th><td>序章＋全5章＋終章</td></tr>
+<tr><th>所要時間</th><td>約40〜60分（無料の序章と第1章は約10〜15分）</td></tr>
+<tr><th>人数</th><td>1人（隣で一緒に考えるのも楽しいです）</td></tr>
+<tr><th>対応端末</th><td>iPhone・Androidのブラウザ推奨。PC・タブレットでも遊べます</td></tr>
+<tr><th>ヒント</th><td>各章3段階。仕掛けが反応しない端末向けの救済もあります</td></tr>
+<tr><th>クリア特典</th><td>ロック画面の壁紙、名前入りの測量証明書</td></tr>
+<tr><th>価格</th><td>序章と第1章は無料／製品版 500円（BOOTH）</td></tr>
+</table>
+
+<h2>遊び方</h2>
+<div class="panel"><ol style="margin:0;padding-left:1.3em">
+<li><a href="./">遊ぶページ</a>をスマホで開く（ホーム画面に追加しなくても大丈夫です）</li>
+<li>画面の保護フィルムをはがして、受信を始める</li>
+<li>第1章まで解いたら、続きは製品版の解除コードで開く。進み具合はそのまま引き継がれます</li>
+</ol></div>
+<p>途中で端末の設定を一時的に変える場面があります。解いたあとは元に戻してください。</p>
+
+<h2>よくある質問</h2>
+<dl>
+<dt>無料でどこまで遊べますか？</dt><dd>序章と第1章です。登録やインストールは不要で、URLを開くだけで遊べます。</dd>
+<dt>謎解きが初めてでも解けますか？</dt><dd>各章に3段階のヒントがあります。必要なのは、手の中のスマホをいつもと違う目で見ることだけです。</dd>
+<dt>途中でやめても続きから遊べますか？</dt><dd>同じ端末・同じブラウザなら続きから遊べます。プライベートブラウズでは保存されない場合があります。</dd>
+<dt>ネタバレを投稿してもいいですか？</dt><dd>クリア後に出る記録カードは、答えも仕掛けも写らないのでそのまま共有できます。感想は、答えと仕掛けを伏せて <span class="mono">#画面の裏の測量士</span> でどうぞ。</dd>
+</dl>
+
+<p style="margin-top:28px"><a class="cta" href="./">無料で遊ぶ</a></p>
+
+<footer>制作 矢印書房（<a href="https://yajirushi-shobo.booth.pm/">BOOTH</a>／<a href="../shop.html">作品一覧</a>）。制作過程でAIを活用しています。</footer>
+</main>
+</body>
+</html>
