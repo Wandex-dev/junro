@@ -298,10 +298,12 @@ form.answer label { font-size: 13px; color: var(--muted); }
   const PRICE_LABEL = '500円';
   const SITE_URL = 'https://wandex-dev.github.io/junro/zero7mm/';
   /* 導線の計測（2026-11-09）：どこから来て、どこまで進んだかを、端末ごとに1回だけ数える。個人の情報は送らない。通信できなくても遊べる */
-  const METRIC = 'https://abacus.jasoncameron.dev/hit/yajirushi-zero7mm/';
+  const METRIC = 'https://abacus.jasoncameron.dev/hit/yajirushi-zero7mm-v2/';
+  const BOT = (() => { try { return navigator.webdriver || /bot|crawl|spider|preview|headless|lighthouse|scan/i.test(navigator.userAgent); } catch (e) { return true; } })();
   function hit(name) {
     try {
-      const k = 'zero7mm-m-' + name;
+      if (BOT) return;
+      const k = 'zero7mm-m2-' + name;
       if (localStorage.getItem(k)) return;
       localStorage.setItem(k, '1');
       if (location.protocol !== 'https:') return;
@@ -311,7 +313,12 @@ form.answer label { font-size: 13px; color: var(--muted); }
   (() => {
     let src = 'direct';
     try { src = (new URLSearchParams(location.search).get('src') || 'direct').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) || 'direct'; } catch (e) {}
-    hit('visit'); hit('visit-' + src);
+    hit('open-' + src);                                   // 開いた（リンクの点検に来た機械も入る）
+    const human = () => {                                 // 画面に触れた人だけ（フィルムをはがす・スクロールなど）
+      hit('visit'); hit('visit-' + src);
+      ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(t => removeEventListener(t, human, true));
+    };
+    ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(t => addEventListener(t, human, { capture: true, passive: true }));
   })();
   const SEAL_B64 = "TAwOXCVg6uFTDFdP5NsCILa9juysuRBH1KzmTyt44+ENdU+JuPt0TIDN7MPhxjomh5CO7Ky5EULQk9+Il9dyQrvI2tbk2xkgtaeO74u5EGXUr+mOhsVyQ7UMQU/k2h0rlKGE8KW8KW/eqeKIpPFyQ7fN7svk2D4gtISO7Yp4zL4bDA5fJWDq4VMMV0/k2yMgtqKO7JB4veFFDFc2JbkSZdSswo6E8HJCmMj18uTYAySCvo7vlLkQZNSu7IuR43lkpc3v/+HBKSC2o4vDjLkQVNSvy46G3nJCqM3t7yV2syawlIjipLkQbNSu7Iua63JCnM3s7+TYGiC3rE8wenazoAQMVxYlPrP5Fc3s0uTbOyC2qo7soHi94UUMVzYluBFl1a7Ljob6ckK8ze/k5NoQILasjuytuRBc1K/hipz0ckGlx/bP5NsGILaxjuyeuRBO1K/Gi4jVckKzzezy5Ns/ILesTzB6drOgAwxXFiU+s/kVzezg5NsCILamju+MtS1cFQJPHyVgyuHetcWOhtZyQbPN7/7k2zEnj66K86u5EULUr8KOhsJyQbbN7Mvi+SEgtqKI3I25EEfUr/KOh9iz7xXN7O/k2BsgtqKO7K+5EEXUru+OhdhyQrHN7ezk2wggtr6O7Jq5EFDUr9OOhv13XpLN7Mvk2Bogt6xPMHp2s6ACDFcWJT6z+RXN7Obk2x0gtpFPQSUos/lsDIjqvb8eYNSvwo6H23hMls3t7yUH7O8VSAQDJWDq4URaAh9+eKuYFcvq1+LVMiC2gY7thrMeYtSu708reHJCqs3v4eTbPiC3r47shbkQadSv8o6G9HdKvM3sw+PiPCC2hY7shbkTSNSu74iC03JCu8jb5eTbGSC2sY7sr7kQTtSvxo6G+nJCpsni0+TYHSC1pY7thrkQR9SvzI6G6nJBpMbXxu/lACC2hITiprkRQRVzEEElLaXhDQyO7Iq5EFDUr+WOhdF+f6gMQU9wb7P5Fc3s5uTbHSC2kU8Q";
   const SEAL = (() => { const K = [0x37, 0x2e, 0x6d, 0x6d, 0x07, 0x5a, 0x91, 0xc3];
