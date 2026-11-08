@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0.7mm 画面の裏の測量士</title>
+<meta name="description" content="スマホの画面の0.7ミリ向こう側に閉じ込められた測量士。キーボード、画面の明るさ、電波、画面の向き――端末にもともとある機能だけで解くWeb謎解き。序章と第1章は無料で遊べます。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="0.7mm 画面の裏の測量士｜スマホで解くWeb謎解き">
+<meta property="og:description" content="あなたのスマホの画面の、0.7ミリ向こう側。端末にもともとある機能だけで解くWeb謎解き。序章と第1章は無料。">
+<meta property="og:url" content="https://wandex-dev.github.io/junro/zero7mm/">
+<meta property="og:image" content="https://wandex-dev.github.io/junro/zero7mm/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=IBM+Plex+Mono:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* 図面用紙の上に描かれた「画面の断面」。表側は製図の線、裏側は格子と彼女の色 */
+  --paper: #e7ebef;
+  --panel: #f4f6f8;
+  --ink: #131a24;
+  --muted: #586373;
+  --line: #c0c9d4;
+  --her: #d34f2a;
+  --her-ink: #ffffff;
+  --glass: #d6e1ea;
+  --lattice: rgba(19, 26, 36, 0.07);
+  --num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --dot: "DotGothic16", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --body: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #090d13; --panel: #0f151e; --ink: #dde3ec; --muted: #8692a3; --line: #243042;
+    --her: #ffa94a; --her-ink: #1c1205; --glass: #121b27; --lattice: rgba(221, 227, 236, 0.05);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #090d13; --panel: #0f151e; --ink: #dde3ec; --muted: #8692a3; --line: #243042;
+  --her: #ffa94a; --her-ink: #1c1205; --glass: #121b27; --lattice: rgba(221, 227, 236, 0.05);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--lattice) 1px, transparent 1px), linear-gradient(90deg, var(--lattice) 1px, transparent 1px);
+  background-size: 14px 14px;
+  color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.8;
+  transition: background-color .8s, color .8s;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--her); outline-offset: 3px; }
+.mono { font-family: var(--num); }
+.wrap { max-width: 680px; margin: 0 auto; padding: 0 16px 80px; }
+
+/* ---------- 上部バー ---------- */
+.bar { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--line); }
+.bar[hidden] { display: none; }
+.bar-in { max-width: 680px; margin: 0 auto; padding: 8px 16px; display: flex; align-items: center; gap: 12px; }
+.logo { appearance: none; background: none; border: 0; padding: 0; cursor: pointer; font-family: var(--num); font-weight: 300; font-size: 20px; letter-spacing: -.02em; }
+.logo small { font-size: 11px; color: var(--muted); margin-left: 1px; }
+.steps { display: flex; gap: 4px; margin-left: auto; }
+.step { appearance: none; width: 30px; height: 30px; border: 1px solid var(--line); background: var(--panel); border-radius: 2px; font-family: var(--num); font-size: 12px; cursor: pointer; display: grid; place-items: center; padding: 0; }
+.step[data-state="done"] { background: var(--her); border-color: var(--her); color: var(--her-ink); }
+.step[data-state="locked"] { opacity: .35; cursor: default; }
+.step[aria-current="step"] { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ink); }
+
+/* ---------- タイトル（図面） ---------- */
+.title { padding: 28px 0 0; }
+.sheet { border: 1.5px solid var(--ink); padding: 18px 16px 0; position: relative; display: grid; gap: 14px; background: var(--panel); }
+.sheet::before, .sheet::after { content: ""; position: absolute; width: 10px; height: 10px; border-color: var(--ink); border-style: solid; }
+.sheet::before { top: 5px; left: 5px; border-width: 1px 0 0 1px; }
+.sheet::after { bottom: 5px; right: 5px; border-width: 0 1px 1px 0; }
+.sheet-top { display: flex; justify-content: space-between; font-family: var(--num); font-size: 11px; letter-spacing: .12em; color: var(--muted); }
+.big { margin: 6px 0 0; font-family: var(--num); font-weight: 300; line-height: .9; letter-spacing: -.05em; font-size: clamp(96px, 31vw, 190px); }
+.big .u { font-size: .32em; letter-spacing: 0; margin-left: .06em; color: var(--muted); }
+.sub { margin: 0; font-family: var(--dot); font-size: clamp(22px, 6.4vw, 34px); line-height: 1.3; }
+.section-fig svg { display: block; width: 100%; height: auto; }
+.section-fig .t { font-family: var(--num); font-size: 9px; fill: var(--muted); letter-spacing: .08em; }
+.section-fig .tj { font-family: var(--body); font-size: 10px; fill: var(--muted); }
+.section-fig .g-line { stroke: var(--ink); stroke-width: 1.2; }
+.section-fig .hatch { stroke: var(--ink); stroke-width: .6; opacity: .45; }
+.section-fig .dim { stroke: var(--ink); stroke-width: .8; fill: none; }
+.section-fig .dimtxt { font-family: var(--num); font-size: 12px; fill: var(--ink); }
+.section-fig .cell { fill: none; stroke: var(--ink); stroke-width: .4; opacity: .25; }
+.section-fig .her { fill: var(--her); animation: knock 2.6s steps(1) infinite; }
+@keyframes knock { 0%, 8%, 16% { opacity: 1; } 4%, 12% { opacity: .15; } 20%, 100% { opacity: 1; } }
+.pitch { margin: 0; font-size: 17px; line-height: 1.95; max-width: 30em; }
+.pitch em { font-style: normal; color: var(--her); font-weight: 700; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.cta { appearance: none; border: 0; background: var(--her); color: var(--her-ink); padding: 14px 22px; font-weight: 700; font-size: 17px; border-radius: 2px; cursor: pointer; }
+.ghost { appearance: none; border: 1px solid var(--line); background: transparent; padding: 10px 14px; font-size: 14px; border-radius: 2px; cursor: pointer; color: var(--muted); }
+.tblock { margin: 6px -16px 0; border-top: 1.5px solid var(--ink); display: grid; grid-template-columns: repeat(3, 1fr); font-size: 12px; }
+.tblock div { padding: 6px 10px 8px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 0; line-height: 1.5; }
+.tblock div:nth-child(3n) { border-right: 0; }
+.tblock div:nth-last-child(-n+3) { border-bottom: 0; }
+.tblock dt { font-family: var(--num); font-size: 10px; color: var(--muted); letter-spacing: .08em; }
+.tblock dd { margin: 0; font-weight: 500; }
+
+/* ---------- 章 ---------- */
+.scene { padding-top: 26px; display: grid; gap: 18px; }
+.ch-head { display: grid; gap: 0; }
+.ch-no { font-family: var(--num); font-size: 12px; color: var(--muted); letter-spacing: .1em; display: flex; gap: 12px; flex-wrap: wrap; }
+.ch-no .lv { letter-spacing: .25em; color: var(--her); }
+.ch-head h2 { margin: 2px 0 0; font-family: var(--dot); font-weight: 400; font-size: 34px; line-height: 1.25; }
+.story { display: grid; gap: 8px; }
+.story p { margin: 0; max-width: 34em; }
+.her-line { border-left: 3px solid var(--her); padding: 4px 0 4px 12px; display: grid; gap: 2px; }
+.her-line .tag { font-family: var(--num); font-size: 10px; letter-spacing: .14em; color: var(--muted); }
+.her-line .say { font-family: var(--dot); font-size: 20px; color: var(--her); line-height: 1.5; }
+.figure { border: 1px solid var(--line); background: var(--panel); padding: 18px 8px; display: flex; justify-content: center; overflow-x: auto; position: relative; }
+.figure .fig-tag { position: absolute; top: 6px; left: 8px; font-family: var(--num); font-size: 10px; color: var(--muted); letter-spacing: .12em; }
+.prompt { margin: 0; font-weight: 700; font-size: 17px; }
+
+form.answer { display: grid; gap: 6px; }
+form.answer label { font-size: 13px; color: var(--muted); }
+.row { display: flex; gap: 8px; }
+.row input { flex: 1; min-width: 0; font: inherit; font-size: 18px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 2px; background: var(--paper); color: var(--ink); }
+.row button { appearance: none; border: 0; background: var(--ink); color: var(--paper); padding: 0 18px; font-weight: 700; border-radius: 2px; cursor: pointer; }
+.result { margin: 0; min-height: 1.8em; font-size: 15px; }
+.result.trap { border-left: 3px solid var(--her); padding-left: 10px; }
+.result.ng { color: var(--muted); }
+.hints { display: grid; gap: 8px; }
+.hint-btn { appearance: none; justify-self: start; border: 1px dashed var(--line); background: transparent; padding: 6px 12px; font-size: 14px; border-radius: 2px; cursor: pointer; }
+.hint-btn:disabled { opacity: .5; cursor: default; }
+.hints ol { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; font-size: 15px; }
+.hints li::marker { font-family: var(--num); color: var(--muted); }
+
+.after { border: 1.5px solid var(--her); padding: 16px; display: grid; gap: 10px; background: var(--panel); }
+.after[hidden] { display: none; }
+.after .tag { font-family: var(--num); font-size: 10px; letter-spacing: .14em; color: var(--her); }
+.after .word { font-family: var(--dot); font-size: 38px; line-height: 1.2; color: var(--her); letter-spacing: .08em; }
+.after p { margin: 0; }
+.after .piece { display: flex; align-items: center; gap: 12px; font-family: var(--num); font-size: 12px; color: var(--muted); }
+.after .piece canvas { width: 36px; height: 48px; }
+.next { appearance: none; justify-self: start; border: 0; background: var(--her); color: var(--her-ink); padding: 12px 18px; font-weight: 700; border-radius: 2px; cursor: pointer; }
+
+/* 序章 */
+.knock-box { display: grid; gap: 10px; justify-items: center; }
+#knock { width: 100%; max-width: 360px; height: auto; display: block; touch-action: manipulation; cursor: pointer; }
+.knock-count { font-family: var(--num); font-size: 13px; color: var(--muted); }
+
+/* 第1・3章 キー盤 */
+.glyph-row { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; padding-top: 10px; }
+.glyph { display: grid; gap: 2px; justify-items: center; }
+.glyph .idx { font-family: var(--num); font-size: 10px; color: var(--muted); }
+.kg-frame { fill: none; stroke: var(--line); stroke-width: 1.2; }
+.kg-dot { fill: var(--muted); opacity: .45; }
+.kg-on { fill: var(--her); }
+.kg-flick { stroke: var(--her); stroke-width: 3.6; stroke-linecap: round; }
+.kg-ring { fill: none; stroke: var(--her); stroke-width: 1.3; }
+
+/* 第2章 空 */
+.sky { width: 100%; max-width: 520px; position: relative; overflow: hidden; border-radius: 2px; transition: background 2.4s ease; color: #3a3226; }
+.sky svg { display: block; width: 100%; height: auto; }
+.sky.day { background: linear-gradient(180deg, #b7d2e8 0%, #e6edf0 62%, #f3d9ae 100%); }
+.sky.night { background: #03050b; color: #000; }
+.sky.twilight { background: linear-gradient(180deg, #060c21 0%, #15214b 52%, #4a3962 80%, #cf7a46 100%); color: #120c16; }
+.sky .sun, .sky .horizon, .sky .dust, .sky .cons { transition: opacity 2s ease; }
+.sky .sun { fill: #f4b65c; opacity: 0; }
+.sky.day .sun { opacity: 1; }
+.sky .horizon { opacity: 0; }
+.sky.day .horizon, .sky.twilight .horizon { opacity: 1; }
+.sky .horizon rect { fill: currentColor; }
+.sky .dust { opacity: 0; }
+.sky.night .dust, .sky.twilight .dust { opacity: 1; }
+.sky .dust circle { fill: #d5def7; }
+.sky .cons { opacity: 0; }
+.sky.twilight .cons { opacity: 1; transition-delay: 1.2s; }
+.sky .cons line { stroke: #eef2ff; stroke-width: 1.2; opacity: .75; stroke-linecap: round; }
+.sky .cons circle { fill: #fff; }
+.sky .cons text { font-family: var(--num); font-size: 7px; fill: #f6d8b8; }
+.sky-label { position: absolute; left: 10px; top: 8px; font-family: var(--num); font-size: 10px; letter-spacing: .12em; color: rgba(20, 20, 30, .6); }
+.sky.night .sky-label, .sky.twilight .sky-label { color: #f3d6b5; }
+
+/* 第3章 計器 */
+.meter { border: 1px solid var(--ink); border-radius: 2px; padding: 10px 14px 12px; display: grid; gap: 8px; min-width: 230px; background: var(--paper); }
+.meter-top, .meter-bottom { display: flex; justify-content: space-between; gap: 16px; font-family: var(--num); font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+.live { display: inline-flex; align-items: center; gap: 6px; }
+.live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--her); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .2; } }
+.meter-face { display: flex; justify-content: center; }
+.meter-face.blink { animation: reacq .7s ease; }
+@keyframes reacq { 0% { opacity: 0; } 30% { opacity: 1; } 45% { opacity: .3; } 100% { opacity: 1; } }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* 第4章 */
+.scope { width: 100%; max-width: 540px; display: grid; gap: 6px; padding-top: 10px; }
+.scope canvas { width: 100%; height: auto; display: block; border: 1px solid var(--line); background: var(--paper); }
+.scope-meta { display: flex; justify-content: space-between; font-family: var(--num); font-size: 11px; color: var(--muted); }
+
+/* 第5章 */
+.strips { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 12px; }
+.strip { display: grid; gap: 4px; justify-items: center; }
+.strip .lbl { font-family: var(--num); font-size: 10px; color: var(--muted); }
+.strip canvas { display: block; width: 84px; height: 112px; }
+@media (orientation: landscape) and (max-height: 560px) {
+  .strips { flex-direction: row; gap: 0; }
+  .strip .lbl { visibility: hidden; }
+}
+
+/* 終章 */
+.phone { display: grid; justify-items: center; gap: 8px; padding-top: 10px; }
+.phone svg { width: 150px; height: auto; display: block; }
+.phone .body { fill: none; stroke: var(--ink); stroke-width: 2; }
+.phone .scr { fill: var(--glass); }
+.phone .cell { fill: none; stroke: var(--ink); stroke-width: .4; opacity: .18; }
+.phone .her { fill: var(--her); animation: pulse 2.2s ease-in-out infinite; }
+.phone .wait { font-family: var(--num); font-size: 12px; color: var(--muted); letter-spacing: .08em; }
+
+/* エンディング */
+.ending { position: fixed; inset: 0; z-index: 20; background: #020305; color: #e8e2d8; overflow-y: auto; opacity: 0; transition: opacity 2.5s ease; }
+.ending.on { opacity: 1; }
+.ending::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(120% 70% at 30% 10%, rgba(255, 255, 255, .07), transparent 55%); }
+.end-in { max-width: 560px; margin: 0 auto; padding: 72px 22px 80px; display: grid; gap: 20px; position: relative; }
+.end-line { margin: 0; font-family: var(--dot); font-size: 20px; line-height: 1.75; color: #ffb35c; min-height: 1.75em; }
+.end-title { display: grid; gap: 4px; margin-top: 24px; opacity: 0; transition: opacity 2s ease; }
+.end-title.on { opacity: 1; }
+.end-title .big { color: #e8e2d8; font-size: clamp(80px, 26vw, 150px); }
+.end-title .big .u { color: #8c877f; }
+.end-title .sub { color: #e8e2d8; }
+.end-title .fin { font-family: var(--num); font-size: 12px; letter-spacing: .3em; color: #8c877f; }
+.record { border: 1px solid #3a3631; display: grid; grid-template-columns: 1fr auto; font-size: 14px; }
+.record div { padding: 7px 12px; border-bottom: 1px solid #23201d; }
+.record div:nth-child(even) { font-family: var(--num); text-align: right; font-variant-numeric: tabular-nums; }
+.record div:nth-last-child(-n+2) { border-bottom: 0; }
+.end-note { margin: 0; font-size: 14px; color: #a39d94; line-height: 1.9; }
+.end-btn { appearance: none; justify-self: start; border: 1px solid #5a554e; background: transparent; color: #e8e2d8; padding: 10px 16px; border-radius: 2px; cursor: pointer; }
+
+/* 体験版の終わり・救済 */
+.step[data-state="paid"] { border-style: dashed; color: var(--muted); }
+.gate-box { border: 1.5px solid var(--ink); background: var(--panel); padding: 16px; display: grid; gap: 10px; }
+.gate-box .tag { font-family: var(--num); font-size: 10px; letter-spacing: .14em; color: var(--muted); }
+.gate-box ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+.gate-box a.cta { justify-self: start; text-decoration: none; display: inline-block; }
+.muted { margin: 0; font-size: 14px; color: var(--muted); }
+.assist { appearance: none; justify-self: start; border: 0; background: none; padding: 4px 0; font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.strips.force-row { flex-direction: row; gap: 0; }
+.strips.force-row .lbl { visibility: hidden; }
+
+/* 保護フィルム */
+.film { position: fixed; inset: 0; z-index: 30; touch-action: none; cursor: grab; }
+.film svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.film.gone { opacity: 0; transition: opacity .5s ease; pointer-events: none; }
+.film-skip { position: absolute; left: 14px; bottom: 14px; appearance: none; border: 1px solid rgba(35, 49, 63, .35); background: rgba(255, 255, 255, .5); color: #23313f; font-size: 12px; padding: 6px 10px; border-radius: 2px; cursor: pointer; }
+.sheet .gloss { position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(115deg, transparent 32%, rgba(255, 255, 255, .6) 46%, transparent 60%); background-size: 260% 100%; background-position: 120% 0; }
+.sheet.shine .gloss { animation: gloss 1.5s ease forwards; }
+@keyframes gloss { 0% { opacity: 1; background-position: 120% 0; } 100% { opacity: 0; background-position: -40% 0; } }
+
+/* 持ち帰り */
+.take { display: grid; gap: 14px; margin-top: 28px; border-top: 1px solid #3a3631; padding-top: 22px; }
+.take-h { margin: 0; font-family: var(--dot); font-weight: 400; font-size: 24px; color: #ffb35c; }
+.take-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.take-card { border: 1px solid #3a3631; padding: 14px; display: grid; gap: 8px; align-content: start; }
+.take-card .tt { font-family: var(--num); font-size: 10px; letter-spacing: .14em; color: #8c877f; }
+.take-card strong { font-size: 17px; }
+.take-card p { margin: 0; font-size: 14px; color: #a39d94; }
+.take-card img { width: 100%; max-width: 220px; height: auto; display: block; border: 1px solid #3a3631; justify-self: center; -webkit-touch-callout: default; }
+.take-card label { font-size: 12px; color: #a39d94; }
+.take-card input { font: inherit; font-size: 16px; padding: 8px 10px; border: 1px solid #5a554e; background: #0c0b0a; color: #e8e2d8; border-radius: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .section-fig .her, .live::before, .phone .her, .meter-face.blink, .sheet.shine .gloss { animation: none; }
+  .sky, .sky *, .ending, .end-title { transition-duration: .01s !important; transition-delay: 0s !important; }
+}
+</style>
+</head>
+<body>
+<header class="bar" id="bar" hidden>
+  <div class="bar-in">
+    <button class="logo" id="logo" type="button" aria-label="タイトルへ戻る">0.7<small>mm</small></button>
+    <nav class="steps" id="steps" aria-label="記録の一覧"></nav>
+  </div>
+</header>
+<div class="wrap"><main id="view"></main></div>
+<div class="ending" id="ending" hidden><div class="end-in" id="end-in"></div></div>
+
+<script>
+(() => {
+  const KEYS = {"c1":{"ok":["e3sqdl6fgf","1vt8c5mx4pu","mjlgxx1563"],"traps":{"1kwxrv9ttln":"t1"}},"c2":{"ok":["1mafbgunhuh","1x888q5xnu7","1lob4e74cmt"],"traps":{"1dtn3ve76lp":"t1","1zbs7h27hkv":"t1"}},"c3":{"ok":["1v25xjlzhqj","km1le2xpnt"],"traps":{"2donrbqtia9":"t1","gmh6acp3yg":"t2"}},"c4":{"ok":["1mz959gr4tb","128lebjamoq","1dtlyoiaitc"],"traps":{"2gw79vuely":"t1","1bl67ix9iee":"t1"}},"c5":{"ok":["wbyfomkan1","2gnprjnqw48"],"traps":{"1f3kdoazvt9":"t1","zop6t9p65z":"t2"}}};
+  /* 販売設定：解除コードのハッシュ、販売ページURL、表示価格（空なら非表示） */
+  const UNLOCK = "b7jp71cpce";
+  const SHOP_URL = 'https://yajirushi-shobo.booth.pm/items/9117261';
+  const PRICE_LABEL = '500円';
+  const SEAL_B64 = "TAwOXCVg6uFTDFdP5NsCILa9juysuRBH1KzmTyt44+ENdU+JuPt0TIDN7MPhxjomh5CO7Ky5EULQk9+Il9dyQrvI2tbk2xkgtaeO74u5EGXUr+mOhsVyQ7UMQU/k2h0rlKGE8KW8KW/eqeKIpPFyQ7fN7svk2D4gtISO7Yp4zL4bDA5fJWDq4VMMV0/k2yMgtqKO7JB4veFFDFc2JbkSZdSswo6E8HJCmMj18uTYAySCvo7vlLkQZNSu7IuR43lkpc3v/+HBKSC2o4vDjLkQVNSvy46G3nJCqM3t7yV2syawlIjipLkQbNSu7Iua63JCnM3s7+TYGiC3rE8wenazoAQMVxYlPrP5Fc3s0uTbOyC2qo7soHi94UUMVzYluBFl1a7Ljob6ckK8ze/k5NoQILasjuytuRBc1K/hipz0ckGlx/bP5NsGILaxjuyeuRBO1K/Gi4jVckKzzezy5Ns/ILesTzB6drOgAwxXFiU+s/kVzezg5NsCILamju+MtS1cFQJPHyVgyuHetcWOhtZyQbPN7/7k2zEnj66K86u5EULUr8KOhsJyQbbN7Mvi+SEgtqKI3I25EEfUr/KOh9iz7xXN7O/k2BsgtqKO7K+5EEXUru+OhdhyQrHN7ezk2wggtr6O7Jq5EFDUr9OOhv13XpLN7Mvk2Bogt6xPMHp2s6ACDFcWJT6z+RXN7Obk2x0gtpFPQSUos/lsDIjqvb8eYNSvwo6H23hMls3t7yUH7O8VSAQDJWDq4URaAh9+eKuYFcvq1+LVMiC2gY7thrMeYtSu708reHJCqs3v4eTbPiC3r47shbkQadSv8o6G9HdKvM3sw+PiPCC2hY7shbkTSNSu74iC03JCu8jb5eTbGSC2sY7sr7kQTtSvxo6G+nJCpsni0+TYHSC1pY7thrkQR9SvzI6G6nJBpMbXxu/lACC2hITiprkRQRVzEEElLaXhDQyO7Iq5EFDUr+WOhdF+f6gMQU9wb7P5Fc3s5uTbHSC2kU8Q";
+  const SEAL = (() => { const K = [0x37, 0x2e, 0x6d, 0x6d, 0x07, 0x5a, 0x91, 0xc3];
+    const b = Uint8Array.from(atob(SEAL_B64), c => c.charCodeAt(0)).map((v, i) => v ^ K[i % K.length]);
+    return JSON.parse(new TextDecoder().decode(b)); })();
+
+  /* ---------- 章の定義 ---------- */
+  const ORDER = ['pro', 'c1', 'c2', 'c3', 'c4', 'c5', 'fin'];
+  const LABEL = { pro: '序', c1: '1', c2: '2', c3: '3', c4: '4', c5: '5', fin: '終' };
+  const CH = {
+    c1: { no: '第1章', title: '裏から押す', lv: 1,
+      story: ['届いた信号は、12個の点と短い線でできていた。', '発信者は、文字を打つ手段をひとつしか持っていないらしい。'],
+      prompt: '発信者は、何と打ったのか。',
+      hints: ['3×4の盤面。あなたも毎日、その上で指をはじいている。',
+        'スマホの日本語かなキーボードを開いて見比べよう。点はキー、線は指をはじく向き、輪はタップ。',
+        'そのまま読むと意味が通らない。発信者は画面の「裏側」から押している。左右を反転して読もう。'],
+      traps: { t1: 'その読み方は、表から見たときのもの。発信者は、裏から押している。' } },
+    c2: { no: '第2章', title: '薄明', lv: 2,
+      story: ['次の信号は、彼女が見上げている空の写真だった。',
+        '星の高さで方角を割り出す「天測」には、星と地平線の両方が見えていなければならない。両方が同時に見えるのは、昼と夜の境目、薄明のわずかな時間だけだ。'],
+      prompt: '彼女が星で測った方角を答えよ。',
+      hints: ['裏面の空は、あなたの画面の光でできている。', 'あなたの端末にも「昼」と「夜」の表示がある。',
+        '端末（またはアプリ）の表示モードを、ライトとダークで切り替えてから戻ってこよう。向きはどちらでもよい。'],
+      traps: { t1: 'それは太陽が沈んでいく方角。彼女はまだ、星を測れていない。' } },
+    c3: { no: '第3章', title: '見られていると', lv: 3,
+      story: ['ユクリは出口へ向かって歩き、道すじを記録しようとしている。', 'けれど、計器の記録は一向に進まない。'],
+      her: '見られていると、動けないの。',
+      prompt: '計器に刻まれた彼女の言葉を、すべて読み取れ。',
+      hints: ['見ている間は変わらない。では、見ていない間は？', '一度この画面から目を離そう。ホーム画面や別のアプリに切り替えて、戻ってくる。',
+        '戻るたびに記録が1つ進む。何も点いていない盤面が区切り。読み方は第1章と同じく、左右反転。'],
+      traps: { t1: '読む向きを思い出して。彼女は、裏側にいる。', t2: '惜しい。最後の記録を見落としている。' } },
+    c4: { no: '第4章', title: '雨音', lv: 4,
+      story: ['裏面には、電波が雨のように降っている。あなたの端末が、片時も休まず外の世界と話し続けているからだ。', 'ユクリの声は、その雨音にかき消されている。'],
+      prompt: '雨がやんだとき、彼女は何と言ったか。',
+      hints: ['雨を降らせているのは、いまあなたが手にしている端末だ。', '外の世界との会話を、ほんの少しだけ止められないか。',
+        '機内モードをオンにして、この画面を見る。解き終えたら、必ずオフに戻すこと。'],
+      traps: { t1: 'それはあなたがしたこと。雨がやんだとき、彼女は何と言った？' } },
+    c5: { no: '第5章', title: '転がる地図', lv: 5,
+      story: ['4枚の測量片がそろった。ユクリが描いた、出口までの地図の断片だ。', 'けれど、どう眺めても読めない。'],
+      her: 'わたしの世界は、あなたが傾けたほうへ転がるの。',
+      prompt: '地図が示す、出口の名を答えよ。',
+      hints: ['測量片は、縦に積むものではない。', '地図を転がすには、あなたの世界のほうを傾ければいい。',
+        'スマホを横向きにする（パソコンならウィンドウを横長で低めに）。測量片が横一列につながる。'],
+      traps: { t1: '濁点も、ちゃんと地図に描いてある。', t2: 'それは方角。知りたいのは、出口の名前。' } },
+    fin: { no: '終章', title: '黒い鏡', lv: 0,
+      her: '見せて。一度だけでいいから。',
+      prompt: '鏡を、彼女に見せてあげよう。',
+      hints: ['あなたの手の中にある、いちばん大きな鏡はどこ？', 'その鏡は、画面の光が消えたときにだけ現れる。',
+        '電源ボタンを1回押して画面を消し、数秒待ってから、またこの画面に戻ってこよう。'] }
+  };
+  const NG = ['信号と一致しない。', '一致しない。別の読み方があるはずだ。', '照合失敗。もう一度、記録を見てみよう。'];
+
+  /* ---------- 共通 ---------- */
+  const $ = s => document.querySelector(s);
+  const norm = s => s.normalize('NFKC').trim().replace(/[\s　?？!！。、,.・…「」'"]+/g, '').toLowerCase()
+    .replace(/[ァ-ヶ]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+  const cyrb53 = (str, seed = 0) => { let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for (let i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36); };
+  const tok = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const sleep = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
+
+  const STORE = 'zero7mm-v1';
+  const fresh = () => ({ scr: 'title', unl: 0, solved: {}, hints: {}, f3: 0, lost: 0, s2init: null, r2: false, r2at: null,
+    r4: false, offAt: null, offSec: 0, startAt: null, endAt: null, knocks: 0, peeled: false, serial: null, name: '', full: false, assist: {} });
+  const paidStep = id => ORDER.indexOf(id) > ORDER.indexOf('c1');
+  function makeSerial() {
+    const a = new Uint32Array(1); (window.crypto || {}).getRandomValues ? crypto.getRandomValues(a) : (a[0] = Math.floor(Math.random() * 1e9));
+    const n = a[0] % 10000; return String(n).padStart(4, '0') + '-' + 'ACEFHJKLMNPRTXY'[(a[0] >>> 8) % 15];
+  }
+  let state = fresh();
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} };
+  const load = () => { try { return JSON.parse(localStorage.getItem(STORE) || 'null') || {}; } catch (e) { return {}; } };
+
+  /* ---------- ドット文字 ---------- */
+  const bmCache = {};
+  function bitmap(str) {
+    if (bmCache[str]) return bmCache[str];
+    const S = 64, c = document.createElement('canvas'); c.width = S * str.length; c.height = S;
+    const x = c.getContext('2d'); x.fillStyle = '#000'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.font = `${S - 4}px "DotGothic16", "Hiragino Sans", "Noto Sans JP", sans-serif`;
+    [...str].forEach((ch, i) => x.fillText(ch, i * S + S / 2, S / 2 + 2));
+    const d = x.getImageData(0, 0, c.width, c.height).data, cols = str.length * 16, g = [];
+    for (let r = 0; r < 16; r++) { const row = []; for (let q = 0; q < cols; q++) {
+      let a = 0; for (let yy = 0; yy < 4; yy++) for (let xx = 0; xx < 4; xx++) a += d[((r * 4 + yy) * c.width + (q * 4 + xx)) * 4 + 3];
+      row.push(a / (16 * 255) > 0.35 ? 1 : 0); } g.push(row); }
+    return (bmCache[str] = g);
+  }
+
+  /* ---------- キー盤の記号 ---------- */
+  const DIRV = { left: [-1, 0], up: [0, -1], right: [1, 0], down: [0, 1] };
+  function keyGlyph(g, scale = 1) {
+    const W = 64, H = 84;
+    let s = `<svg viewBox="0 0 ${W} ${H}" width="${(W * scale).toFixed(0)}" height="${(H * scale).toFixed(0)}" aria-hidden="true"><rect class="kg-frame" x="1" y="1" width="${W - 2}" height="${H - 2}" rx="7"/>`;
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) {
+      const x = 12 + c * 20, y = 12 + r * 20;
+      if (g && g.r === r && g.c === c) {
+        if (g.d === 'tap') s += `<circle class="kg-ring" cx="${x}" cy="${y}" r="8.5"/>`;
+        else { const v = DIRV[g.d]; s += `<line class="kg-flick" x1="${x}" y1="${y}" x2="${x + v[0] * 13}" y2="${y + v[1] * 13}"/>`; }
+        s += `<circle class="kg-on" cx="${x}" cy="${y}" r="5.2"/>`;
+      } else s += `<circle class="kg-dot" cx="${x}" cy="${y}" r="2.2"/>`;
+    }
+    return s + '</svg>';
+  }
+  const G1 = [{r:0,c:1,d:'down'},{r:0,c:1,d:'down'},{r:1,c:1,d:'right'},{r:0,c:2,d:'right'},{r:2,c:0,d:'up'}];
+  const G3 = [{r:2,c:2,d:'right'},{r:1,c:1,d:'tap'},{r:0,c:2,d:'right'},{r:1,c:2,d:'left'},{r:3,c:2,d:'tap'}, null];
+
+  /* ---------- 星座 ---------- */
+  const STROKES = {
+    hi: [[1.0,0.4,1.0,3.6],[1.0,3.6,3.6,3.6],[1.0,2.2,3.2,1.3]],
+    ga: [[0.4,1.1,3.2,1.1],[3.2,1.1,2.9,3.6],[2.9,3.6,2.3,3.2],[1.8,0.2,0.5,3.8],[3.45,0.0,3.65,0.6],[3.9,-0.1,4.1,0.5]],
+    shi: [[0.5,0.6,1.2,1.1],[0.3,1.8,1.0,2.3],[0.6,3.8,3.6,0.8]]
+  };
+  function skySVG() {
+    const u = 18, parts = [['hi', 36, 34], ['ga', 128, 34], ['shi', 224, 34]];
+    let lines = '', stars = '', labels = '', seen = new Set();
+    parts.forEach(([k, ox, oy]) => {
+      STROKES[k].forEach(([a, b, c, d], i) => {
+        const x1 = ox + a * u, y1 = oy + b * u, x2 = ox + c * u, y2 = oy + d * u;
+        lines += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
+        [[x1, y1], [x2, y2]].forEach(([x, y], j) => {
+          const key = x.toFixed(0) + ',' + y.toFixed(0); if (seen.has(key)) return; seen.add(key);
+          stars += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.3"/>`;
+          if (i === 0 && j === 0 && k !== 'ga') labels += `<text x="${(x + 5).toFixed(1)}" y="${(y - 4).toFixed(1)}">h ${((160 - y) / 160 * 62).toFixed(1)}°</text>`;
+        });
+      });
+    });
+    let rnd = 11, dust = ''; const R = () => (rnd = (rnd * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 90; i++) dust += `<circle cx="${(R() * 320).toFixed(1)}" cy="${(R() * 158).toFixed(1)}" r="${(0.35 + R() * 1.1).toFixed(2)}" opacity="${(0.2 + R() * 0.7).toFixed(2)}"/>`;
+    return `<svg viewBox="0 0 320 180" role="img" aria-label="裏面の空">
+      <circle class="sun" cx="270" cy="160" r="15"/>
+      <g class="dust">${dust}</g>
+      <g class="horizon"><rect x="0" y="160" width="320" height="20"/></g>
+      <g class="cons">${lines}${stars}${labels}</g></svg>`;
+  }
+
+  /* ---------- 上部バー ---------- */
+  function renderBar() {
+    const bar = $('#bar'), onTitle = state.scr === 'title';
+    bar.hidden = onTitle;
+    $('#steps').innerHTML = ORDER.map((id, i) => {
+      const st = i > state.unl ? 'locked' : (state.solved[id] ? 'done' : (paidStep(id) && !state.full ? 'paid' : 'open'));
+      return `<button class="step" type="button" data-go="${id}" data-state="${st}" ${st === 'locked' ? 'disabled' : ''} ${state.scr === id ? 'aria-current="step"' : ''} aria-label="${id === 'pro' ? '序章' : id === 'fin' ? '終章' : '第' + LABEL[id] + '章'}">${LABEL[id]}</button>`;
+    }).join('');
+  }
+  $('#steps').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b && !b.disabled) go(b.dataset.go); });
+  $('#logo').addEventListener('click', () => go('title'));
+
+  /* ---------- 画面切り替え ---------- */
+  let cleanup = [];
+  function go(scr) {
+    cleanup.forEach(f => f()); cleanup = [];
+    state.scr = scr; save(); renderBar();
+    const v = $('#view');
+    if (scr !== 'title' && paidStep(scr) && !state.full) { v.innerHTML = gateHTML(); mountGate(scr); window.scrollTo(0, 0); return; }
+    if (scr === 'title') { v.innerHTML = titleHTML(); mountTitle(); }
+    else if (scr === 'pro') { v.innerHTML = proHTML(); mountPro(); }
+    else { v.innerHTML = chapterHTML(scr); mountChapter(scr); }
+    window.scrollTo(0, 0);
+  }
+  function unlockAfter(id) { state.unl = Math.max(state.unl, ORDER.indexOf(id) + 1); save(); renderBar(); }
+
+  /* ---------- タイトル ---------- */
+  function titleHTML() {
+    let cells = '';
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 34; c++) cells += `<rect class="cell" x="${c * 10}" y="${92 + r * 10}" width="10" height="10"/>`;
+    let hatch = '';
+    for (let x = -20; x < 340; x += 7) hatch += `<line class="hatch" x1="${x}" y1="70" x2="${x + 14}" y2="44"/>`;
+    const cont = state.unl > 0;
+    return `<section class="title"><div class="sheet">
+      <div class="sheet-top"><span>SECTION A–A′</span><span>${state.full ? 'FULL' : 'TRIAL'} / DWG No. 0x07</span></div>
+      <h1 class="big"><span class="n">0.7</span><span class="u">mm</span></h1>
+      <p class="sub">画面の裏の測量士</p>
+      <div class="section-fig"><svg viewBox="0 0 340 156" aria-label="スマホの画面の断面図。ガラスの厚さは0.7ミリ。その向こうに格子の世界がある。">
+        <text class="tj" x="0" y="20">表　あなた</text>
+        <clipPath id="band"><rect x="0" y="44" width="300" height="26"/></clipPath>
+        <g clip-path="url(#band)">${hatch}</g>
+        <line class="g-line" x1="0" y1="44" x2="300" y2="44"/><line class="g-line" x1="0" y1="70" x2="300" y2="70"/>
+        <line class="dim" x1="300" y1="44" x2="330" y2="44"/><line class="dim" x1="300" y1="70" x2="330" y2="70"/>
+        <line class="dim" x1="322" y1="30" x2="322" y2="84"/>
+        <path class="dim" d="M319 38 L322 44 L325 38 M319 76 L322 70 L325 76"/>
+        <text class="dimtxt" x="294" y="26">0.7</text>
+        <text class="t" x="6" y="62">COVER GLASS</text>
+        <g>${cells}</g>
+        <rect class="her" x="230" y="112" width="10" height="10"/>
+        <text class="tj" x="0" y="88">裏面</text>
+      </svg></div>
+      <p class="pitch">あなたのスマホの画面の、<em>0.7ミリ</em>向こう側。そこに、ひとりの測量士が閉じ込められている。彼女は話せない。こちらに届くのは、点と線だけ。</p>
+      <div class="cta-row">
+        <button class="cta" type="button" id="start">${cont ? '続きから受信する' : '受信を始める'}</button>
+        ${state.solved.fin ? '<button class="ghost" type="button" id="gifts">クリア特典を受け取る</button>' : ''}
+        ${cont ? '<button class="ghost" type="button" id="restart">最初から</button>' : ''}
+      </div>
+      <dl class="tblock">
+        <div><dt>図名</dt><dd>裏面断面図</dd></div>
+        <div><dt>尺度</dt><dd>NTS（非尺度）</dd></div>
+        <div><dt>構成</dt><dd>序章＋5章＋終章</dd></div>
+        <div><dt>所要</dt><dd>約40〜60分</dd></div>
+        <div><dt>推奨</dt><dd>スマートフォン</dd></div>
+        <div><dt>個体番号</dt><dd class="mono">No. ${state.serial || '----'}</dd></div>
+      </dl>
+      <span class="gloss" aria-hidden="true"></span>
+    </div></section>`;
+  }
+  function mountTitle() {
+    $('#start').addEventListener('click', () => {
+      if (!state.startAt) { state.startAt = Date.now(); save(); }
+      go(state.unl > 0 ? ORDER[Math.min(state.unl, ORDER.length - 1)] : 'pro');
+    });
+    const gf = $('#gifts'); if (gf) gf.addEventListener('click', () => ending(true));
+    if (!state.peeled) mountFilm();
+    const rs = $('#restart'); let armed = false;
+    if (rs) rs.addEventListener('click', () => {
+      if (!armed) { armed = true; rs.textContent = 'もう一度押すと記録を消去'; setTimeout(() => { armed = false; rs.textContent = '最初から'; }, 4000); return; }
+      state = fresh(); state.serial = makeSerial(); save(); go('title');
+    });
+  }
+
+  /* ---------- 体験版の終わり ---------- */
+  function gateHTML() {
+    return `<section class="scene gate">
+      <div class="ch-head"><span class="ch-no"><span>体験版はここまで</span></span><h2>信号は、まだ続く</h2></div>
+      <div class="story"><p>ユクリの居場所はわかった。けれど、彼女がなぜ裏面にいるのか、どうすれば出られるのかは、まだ何もわかっていない。</p></div>
+      <div class="her-line"><span class="tag">FROM REAR SURFACE / 裏面より</span><span class="say">もう少しだけ、付き合って。</span></div>
+      <div class="gate-box">
+        <span class="tag">製品版に含まれるもの</span>
+        <ul>
+          <li>第2章〜第5章と終章（端末を使う仕掛けが、章ごとに1つずつ）</li>
+          <li>エンディングと、あなただけの測量記録</li>
+          <li>クリア特典：ロック画面の壁紙、名前入りの測量証明書</li>
+        </ul>
+        ${SHOP_URL ? `<a class="cta" href="${SHOP_URL}" target="_blank" rel="noopener">製品版を購入する${PRICE_LABEL ? '（' + PRICE_LABEL + '）' : ''}</a>` : `<p class="muted">製品版の販売ページは準備中です。</p>`}
+        <p class="muted">体験版の進み具合は、この端末に保存されています。解除コードを入れると、続きの第2章から始まります。</p>
+      </div>
+      <form class="answer" id="unlock-form" autocomplete="off">
+        <label for="unlock">製品版の解除コード（購入後のファイルに記載）</label>
+        <div class="row"><input id="unlock" type="text" autocapitalize="characters" spellcheck="false" enterkeyhint="go"><button type="submit">解除</button></div>
+        <p class="result" id="unlock-res" aria-live="polite"></p>
+      </form>
+    </section>`;
+  }
+  function mountGate(target) {
+    $('#unlock-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const code = $('#unlock').value.normalize('NFKC').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (!code) return;
+      if (cyrb53('0.7mm/unlock/' + code) === UNLOCK) { state.full = true; save(); go(target); }
+      else { const r = $('#unlock-res'); r.className = 'result ng'; r.textContent = '解除コードが一致しません。英数字を確かめて、もう一度入力してください。'; }
+    });
+  }
+
+  /* ---------- 保護フィルム（開封） ---------- */
+  function mountFilm() {
+    if ($('#film')) return;
+    const NS = 'http://www.w3.org/2000/svg';
+    const film = document.createElement('div'); film.className = 'film'; film.id = 'film';
+    film.setAttribute('role', 'dialog'); film.setAttribute('aria-label', '画面保護フィルム。右下の角からはがしてください');
+    film.innerHTML = `<svg id="fsvg" aria-hidden="true"><defs>
+        <linearGradient id="fsheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".40" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".38"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+        <linearGradient id="fflapg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbfdfe"/><stop offset=".7" stop-color="#dfe7ee"/><stop offset="1" stop-color="#bfcbd6"/></linearGradient>
+        <clipPath id="fclip"><polygon id="fclip-p" points="0,0"/></clipPath>
+        <filter id="fshadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="-5" dy="-5" stdDeviation="7" flood-color="#0b1520" flood-opacity=".3"/></filter>
+      </defs>
+      <g clip-path="url(#fclip)"><rect id="fbase"/><rect id="fsh" fill="url(#fsheen)"/><g id="fprint"></g></g>
+      <polygon id="fflap" fill="url(#fflapg)" filter="url(#fshadow)" points="0,0"/></svg>
+      <button class="film-skip" type="button" id="film-skip">フィルムをはがす</button>`;
+    document.body.appendChild(film);
+    let W = 0, H = 0, c = 0, rest = 0, drag = false, anim = 0, moved = false;
+    const el = id => film.querySelector('#' + id);
+    const txt = (x, y, s, size, opt = {}) => `<text x="${x}" y="${y}" text-anchor="${opt.a || 'middle'}" font-family='${opt.f || '"Zen Kaku Gothic New", "Hiragino Sans", sans-serif'}' font-size="${size}" font-weight="${opt.w || 500}" fill="${opt.c || '#23313f'}" letter-spacing="${opt.ls || 0}" ${opt.o ? `opacity="${opt.o}"` : ''}>${s}</text>`;
+    function layout() {
+      W = innerWidth; H = innerHeight; rest = W + H - 46; if (!drag && !anim) c = rest;
+      el('fsvg').setAttribute('viewBox', `0 0 ${W} ${H}`);
+      for (const id of ['fbase', 'fsh']) { const r = el(id); r.setAttribute('x', 0); r.setAttribute('y', 0); r.setAttribute('width', W); r.setAttribute('height', H); }
+      el('fbase').setAttribute('fill', 'rgba(222, 232, 241, 0.9)');
+      const cx = W / 2, cy = H * 0.38, mono = '"IBM Plex Mono", ui-monospace, monospace';
+      el('fprint').innerHTML = `<rect x="9" y="9" width="${W - 18}" height="${H - 18}" rx="20" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="1.5"/>
+        ${txt(cx, cy - 46, 'SCREEN PROTECTOR', 12, { f: mono, ls: 3, c: '#4c5b6b' })}
+        ${txt(cx, cy, '画面保護フィルム', 28, { w: 700 })}
+        ${txt(cx, cy + 40, 'はがしてからご使用ください', 16)}
+        ${txt(cx, cy + 92, 'この下は、厚さ0.7mmのカバーガラスです。', 13, { c: '#4c5b6b' })}
+        ${txt(cx, cy + 116, 'ガラスの向こう側には、触れないでください。', 13, { c: '#4c5b6b' })}
+        ${txt(cx, cy + 160, 'LOT No. ' + state.serial, 11, { f: mono, ls: 2, c: '#4c5b6b' })}
+        ${txt(W - 26, H - 74, '右下の角を、指でめくる', 13, { a: 'end', c: '#23313f' })}
+        <path d="M${W - 70} ${H - 60} l26 26 m0 0 v-14 m0 14 h-14" fill="none" stroke="#23313f" stroke-width="1.6" stroke-linecap="round"/>`;
+      draw();
+    }
+    function clipHalf(poly, k, keepLess) {
+      const out = [], inside = p => keepLess ? p[0] + p[1] <= k : p[0] + p[1] >= k;
+      for (let i = 0; i < poly.length; i++) {
+        const a = poly[i], b = poly[(i + 1) % poly.length], ia = inside(a), ib = inside(b);
+        if (ia) out.push(a);
+        if (ia !== ib) { const sa = a[0] + a[1] - k, sb = b[0] + b[1] - k, t = sa / (sa - sb); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+      }
+      return out;
+    }
+    const pts = p => p.length ? p.map(q => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ') : '0,0';
+    function draw() {
+      const rect = [[0, 0], [W, 0], [W, H], [0, H]];
+      el('fclip-p').setAttribute('points', pts(clipHalf(rect, c, true)));
+      el('fflap').setAttribute('points', pts(clipHalf(rect, c, false).map(([x, y]) => [c - y, c - x])));
+    }
+    function animateTo(target, ms, done) {
+      cancelAnimationFrame(anim); const from = c, t0 = performance.now();
+      const step = t => { const k = Math.min(1, (t - t0) / ms), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        c = from + (target - from) * e; draw(); if (k < 1) anim = requestAnimationFrame(step); else { anim = 0; done && done(); } };
+      if (reduce) { c = target; draw(); done && done(); } else anim = requestAnimationFrame(step);
+    }
+    function peelAway() {
+      if (film.dataset.done) return; film.dataset.done = '1';
+      animateTo(-(W + H) * 0.15, 760, () => {
+        film.classList.add('gone'); state.peeled = true; save();
+        try { navigator.vibrate && navigator.vibrate(18); } catch (e) {}
+        const sh = document.querySelector('.sheet'); if (sh) sh.classList.add('shine');
+        setTimeout(() => { film.remove(); removeEventListener('resize', layout); }, 520);
+      });
+    }
+    const fingerC = e => (e.clientX + e.clientY + W + H) / 2;
+    film.addEventListener('pointerdown', e => {
+      if (e.target.closest('#film-skip')) return;
+      const nearCorner = (W - e.clientX) + (H - e.clientY) < Math.max(190, (W + H - c) * 2 + 120);
+      if (!nearCorner) { animateTo(rest - 60, 260, () => animateTo(rest, 380)); return; }
+      drag = true; moved = false; cancelAnimationFrame(anim); anim = 0;
+      try { film.setPointerCapture(e.pointerId); } catch (err) {}
+      film.style.cursor = 'grabbing';
+    });
+    film.addEventListener('pointermove', e => { if (!drag) return; moved = true; c = Math.min(rest, Math.max(-(W + H) * .1, fingerC(e))); draw(); });
+    const up = () => {
+      if (!drag) return; drag = false; film.style.cursor = '';
+      if (!moved) { animateTo(rest - 90, 300, () => animateTo(rest, 420)); return; }
+      if (W + H - c > Math.min(W, H) * 0.9) peelAway(); else animateTo(rest, 420);
+    };
+    film.addEventListener('pointerup', up); film.addEventListener('pointercancel', up);
+    el('film-skip').addEventListener('click', peelAway);
+    addEventListener('resize', layout);
+    layout();
+    if (!reduce) setTimeout(() => { if (!drag && !film.dataset.done) animateTo(rest - 70, 420, () => animateTo(rest, 520)); }, 1300);
+  }
+
+  /* ---------- 序章 ---------- */
+  function proHTML() {
+    return `<section class="scene">
+      <div class="ch-head"><span class="ch-no"><span>序章</span></span><h2>ノック</h2></div>
+      <div class="story"><p>夜。手の中のスマホが、内側から小さく叩かれた。</p></div>
+      <div class="figure"><span class="fig-tag">REAR SURFACE / 裏面</span>
+        <div class="knock-box"><canvas id="knock" width="640" height="800" aria-label="裏面の格子。光っている点がある"></canvas>
+        <span class="knock-count" id="kc"></span></div></div>
+      <div class="after" id="pro-after" hidden>
+        <span class="tag">SYSTEM</span>
+        <p id="pro-t1"></p><p id="pro-t2"></p><p id="pro-t3"></p>
+        <button class="next" type="button" id="pro-next" hidden>第1章の記録を開く</button>
+      </div>
+      <p class="note-s" style="margin:0;font-size:13px;color:var(--muted)">この作品は、あなたの端末の機能を使って解きます。途中で変えた端末の設定は、各章を解いたあとで元に戻してください。</p>
+    </section>`;
+  }
+  function mountPro() {
+    const cv = $('#knock'), x = cv.getContext('2d'), COLS = 16, ROWS = 20, cw = cv.width / COLS;
+    let target = { r: 9, c: 7 }, hits = state.solved.pro ? 3 : 0, raf = 0, ripple = null, q = null;
+    const kc = $('#kc');
+    const pick = () => { let t; do { t = { r: 2 + Math.floor(Math.random() * (ROWS - 4)), c: 1 + Math.floor(Math.random() * (COLS - 2)) }; } while (Math.abs(t.r - target.r) + Math.abs(t.c - target.c) < 5); target = t; };
+    const count = () => { kc.textContent = hits >= 3 ? '接触 3 / 3' : `光っている点に触れてください　${hits} / 3`; };
+    function draw(t) {
+      const ink = tok('--ink'), her = tok('--her');
+      x.clearRect(0, 0, cv.width, cv.height);
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        x.globalAlpha = 0.1; x.strokeStyle = ink; x.lineWidth = 1; x.strokeRect(c * cw + 3, r * cw + 3, cw - 6, cw - 6);
+      }
+      if (q) {
+        const g = bitmap('？'), oy = 2;
+        for (let r = 0; r < 16; r++) for (let c = 0; c < 16; c++) if (g[r][c] && c < COLS) {
+          x.globalAlpha = Math.min(1, q.a); x.fillStyle = her; x.fillRect(c * cw + 3, (r + oy) * cw + 3, cw - 6, cw - 6);
+        }
+        q.a += 0.04;
+      } else {
+        const blink = Math.floor(t / 180) % 6;
+        x.globalAlpha = blink === 1 || blink === 3 ? 0.15 : 1; x.fillStyle = her;
+        x.fillRect(target.c * cw + 3, target.r * cw + 3, cw - 6, cw - 6);
+      }
+      if (ripple) { x.globalAlpha = Math.max(0, 1 - ripple.k); x.strokeStyle = her; x.lineWidth = 3;
+        x.beginPath(); x.arc(ripple.x, ripple.y, 10 + ripple.k * 70, 0, Math.PI * 2); x.stroke(); ripple.k += 0.06; if (ripple.k > 1) ripple = null; }
+      x.globalAlpha = 1;
+      raf = requestAnimationFrame(draw);
+    }
+    async function finish(instant) {
+      q = { a: instant ? 1 : 0 };
+      const box = $('#pro-after'); box.hidden = false;
+      const lines = ['接触を確認しました。', 'この端末の裏面に、何者かがいます。', '以降の記録は、すべて裏面から受信したものです。'];
+      for (let i = 0; i < 3; i++) await typeInto($('#pro-t' + (i + 1)), lines[i], instant);
+      $('#pro-next').hidden = false;
+      if (!state.solved.pro) { state.solved.pro = true; unlockAfter('pro'); }
+    }
+    cv.addEventListener('click', e => {
+      if (hits >= 3) return;
+      const rect = cv.getBoundingClientRect(), sx = cv.width / rect.width;
+      const px = (e.clientX - rect.left) * sx, py = (e.clientY - rect.top) * sx;
+      const c = Math.floor(px / cw), r = Math.floor(py / cw);
+      if (Math.abs(c - target.c) <= 1 && Math.abs(r - target.r) <= 1) {
+        hits++; state.knocks = hits; ripple = { x: (target.c + .5) * cw, y: (target.r + .5) * cw, k: 0 };
+        try { navigator.vibrate && navigator.vibrate(25); } catch (err) {}
+        count(); if (hits >= 3) finish(false); else pick();
+      }
+    });
+    $('#pro-next').addEventListener('click', () => go('c1'));
+    count(); raf = requestAnimationFrame(draw);
+    if (hits >= 3) finish(true);
+    cleanup.push(() => cancelAnimationFrame(raf));
+  }
+
+  /* ---------- 文字送り ---------- */
+  function typeInto(el, text, instant) {
+    if (!el) return Promise.resolve();
+    if (instant || reduce) { el.textContent = text; return Promise.resolve(); }
+    return new Promise(res => { let i = 0; el.textContent = '';
+      const t = setInterval(() => { el.textContent = text.slice(0, ++i); if (i >= text.length) { clearInterval(t); setTimeout(res, 260); } }, 42); });
+  }
+
+  /* ---------- 章 ---------- */
+  function lvHTML(n) { return n ? `<span class="lv" aria-label="測量難度 ${n}">${'■'.repeat(n)}${'□'.repeat(5 - n)}</span>` : ''; }
+  function figureHTML(id) {
+    if (id === 'c1') return `<span class="fig-tag">SIGNAL 01</span><div class="glyph-row">${G1.map((g, i) => `<div class="glyph">${keyGlyph(g, 0.82)}<span class="idx">${i + 1}</span></div>`).join('')}</div>`;
+    if (id === 'c2') { const cls = state.r2 ? 'twilight' : (state.s2init === 'dark' ? 'night' : 'day');
+      return `<div class="sky ${cls}" id="sky">${skySVG()}<span class="sky-label" id="sky-label">${state.r2 ? 'SKYLIGHT / 薄明 / 天測完了' : 'SKYLIGHT / 裏面の空'}</span></div>`; }
+    if (id === 'c3') return `<div class="meter"><div class="meter-top"><span>計器 Δ-3</span><span class="live">観測中</span></div>
+      <div class="meter-face" id="meter-face"></div><div class="meter-bottom"><span>REC</span><span class="tnum" id="lost">観測途絶 0</span></div></div>`;
+    if (id === 'c4') return `<span class="fig-tag">RADIO / 裏面受信機</span><div class="scope"><canvas id="scope" width="840" height="200" aria-label="雨のような雑音"></canvas>
+      <div class="scope-meta"><span>1420.4 MHz</span><span id="scope-state"></span></div></div>`;
+    if (id === 'c5') return `<span class="fig-tag">MAP FRAGMENTS / 測量片</span><div class="strips" id="strips"></div>`;
+    if (id === 'fin') return `<div class="phone"><svg viewBox="0 0 160 300" aria-label="あなたの端末">
+      <rect class="body" x="4" y="4" width="152" height="292" rx="22"/><rect class="scr" x="14" y="16" width="132" height="268" rx="14"/>
+      ${Array.from({ length: 13 * 26 }, (_, i) => `<rect class="cell" x="${14 + (i % 13) * 10 + 1}" y="${16 + Math.floor(i / 13) * 10 + 4}" width="10" height="10"/>`).join('')}
+      <rect class="her" x="75" y="150" width="10" height="10"/></svg><span class="wait" id="wait">STANDBY / 待機中</span></div>`;
+    return '';
+  }
+  function chapterHTML(id) {
+    const C = CH[id], solved = !!state.solved[id];
+    let her = C.her || '';
+    if (id === 'c2') her = state.s2init === 'dark' ? '暗くて、地平線が見えない。' : 'まぶしくて、星が見えない。';
+    const story = id === 'fin' ? SEAL.fin.story : C.story;
+    return `<section class="scene">
+      <div class="ch-head"><span class="ch-no"><span>${C.no}</span>${lvHTML(C.lv)}</span><h2>${C.title}</h2></div>
+      <div class="story">${story.map(s => `<p>${s}</p>`).join('')}</div>
+      ${her ? `<div class="her-line"><span class="tag">FROM REAR SURFACE / 裏面より</span><span class="say">${her}</span></div>` : ''}
+      <div class="figure">${figureHTML(id)}</div>
+      <p class="prompt">${C.prompt}</p>
+      ${id === 'fin' ? '' : `<form class="answer" id="form" autocomplete="off" ${solved ? 'hidden' : ''}>
+        <label for="ans">解読した言葉（ひらがな・カタカナどちらでも可）</label>
+        <div class="row"><input id="ans" name="ans" type="text" enterkeyhint="done" autocapitalize="off" spellcheck="false"><button type="submit" id="go">照合</button></div>
+        <p class="result" id="res" aria-live="polite"></p></form>`}
+      <div class="after" id="after" hidden></div>
+      <div class="hints" ${solved ? 'hidden' : ''}><button class="hint-btn" type="button" id="hint"></button><ol id="hl"></ol>
+        <button class="assist" type="button" id="assist" hidden></button></div>
+    </section>`;
+  }
+  function renderHints(id) {
+    const n = state.hints[id] || 0, C = CH[id];
+    $('#hl').innerHTML = C.hints.slice(0, n).map(h => `<li>${h}</li>`).join('');
+    const b = $('#hint'); b.textContent = n >= 3 ? 'ヒントはここまで（3/3）' : `ヒントを1つ開く（${n}/3）`; b.disabled = n >= 3;
+    const a = $('#assist'); if (!a) return;
+    const label = { c2: '表示モードを切り替えても空が変わらない場合はこちら', c3: '画面を離れても計器が進まない場合はこちら',
+      c4: '機内モードにしても雨がやまない場合はこちら', c5: '横向きにしても測量片が並ばない場合はこちら', fin: '画面を消して戻っても何も起きない場合はこちら' }[id];
+    a.hidden = !(label && n >= 3 && !state.solved[id] && !state.assist[id]);
+    if (label) a.textContent = label;
+  }
+  /* 端末やアプリによっては仕掛けが働かないため、ヒントを出し切った人だけが使える救済 */
+  function applyAssist(id) {
+    state.assist[id] = true; save();
+    if (id === 'c2') { state.r2 = true; save(); const sky = $('#sky'); if (sky) { sky.className = 'sky twilight'; $('#sky-label').textContent = 'SKYLIGHT / 薄明 / 天測完了'; } }
+    if (id === 'c3') { const f = $('#meter-face'); if (f) f.innerHTML = `<div class="glyph-row">${G3.map((g, i) => `<div class="glyph">${keyGlyph(g, 0.7)}<span class="idx">${i + 1}</span></div>`).join('')}</div>`; }
+    if (id === 'c4') { state.r4 = true; fade = 0; save(); startScope(); }
+    if (id === 'c5') { const s = $('#strips'); if (s) s.classList.add('force-row'); }
+    if (id === 'fin') { ending(); }
+    const a = $('#assist'); if (a) a.hidden = true;
+  }
+  function stripCanvas(k, cell) {
+    const w = bitmap(SEAL.w5), dpr = Math.max(1, window.devicePixelRatio || 1);
+    const cv = document.createElement('canvas'); cv.width = 12 * cell * dpr; cv.height = 16 * cell * dpr;
+    const x = cv.getContext('2d'); x.scale(dpr, dpr); const her = tok('--her'), line = tok('--line');
+    for (let r = 0; r < 16; r++) for (let q = 0; q < 12; q++) { const on = w[r][k * 12 + q];
+      x.fillStyle = on ? her : line; x.globalAlpha = on ? 1 : .35; x.fillRect(q * cell + .5, r * cell + .5, cell - 1, cell - 1); }
+    cv.setAttribute('aria-label', '測量片 #' + (k + 1));
+    return cv;
+  }
+  async function showAfter(id, instant) {
+    const S = SEAL[id], a = $('#after'); if (!S || !S.d) return;
+    const pieceNo = ['c1', 'c2', 'c3', 'c4'].indexOf(id);
+    a.hidden = false;
+    a.innerHTML = `<span class="tag">DECODED / 解読完了</span><div class="word">${S.d}</div>
+      ${S.r.map((_, i) => `<p id="rp${i}"></p>`).join('')}
+      ${pieceNo >= 0 ? `<div class="piece" id="piece" hidden><span>測量片 #${pieceNo + 1} を受信した</span></div>` : ''}
+      <button class="next" type="button" id="next" hidden>${id === 'c5' ? '終章へ' : '次の記録へ'}</button>`;
+    for (let i = 0; i < S.r.length; i++) await typeInto($('#rp' + i), S.r[i], instant);
+    if (pieceNo >= 0) { const p = $('#piece'); p.prepend(stripCanvas(pieceNo, 3)); p.hidden = false; }
+    const nx = $('#next'); nx.hidden = false; nx.addEventListener('click', () => go(ORDER[ORDER.indexOf(id) + 1]));
+  }
+  function mountChapter(id) {
+    const solved = !!state.solved[id];
+    renderHints(id);
+    $('#hint').addEventListener('click', () => { state.hints[id] = Math.min(3, (state.hints[id] || 0) + 1); save(); renderHints(id); });
+    $('#assist').addEventListener('click', () => applyAssist(id));
+    const form = $('#form');
+    if (form) form.addEventListener('submit', e => {
+      e.preventDefault();
+      const n = norm($('#ans').value); if (!n) return;
+      const h = cyrb53('0.7mm/' + id + '/' + n), K = KEYS[id], res = $('#res');
+      if (K.ok.includes(h)) {
+        state.solved[id] = true; unlockAfter(id);
+        form.hidden = true; document.querySelector('.hints').hidden = true; showAfter(id, false); return;
+      }
+      if (K.traps[h]) { res.className = 'result trap'; res.textContent = CH[id].traps[K.traps[h]]; return; }
+      res.className = 'result ng'; res.textContent = NG[Math.floor(Math.random() * NG.length)];
+    });
+    if (solved) showAfter(id, true);
+    if (id === 'c2') { if (!state.s2init) { state.s2init = scheme(); save(); go('c2'); return; } }
+    if (id === 'c3') { drawMeter(false); if (state.assist.c3) applyAssist('c3'); }
+    if (id === 'c4') { startScope(); cleanup.push(stopScope); }
+    if (id === 'c5') { renderStrips(); if (state.assist.c5) $('#strips').classList.add('force-row'); }
+    if (id === 'fin' && solved) {
+      $('#wait').textContent = 'RECEIVED / 受信済み';
+      const b = document.createElement('button'); b.className = 'next'; b.type = 'button'; b.textContent = '最後の記録をもう一度見る';
+      b.addEventListener('click', () => ending(false)); $('.phone').appendChild(b);
+    }
+  }
+
+  /* ---------- 第2章：表示モード ---------- */
+  const mql = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+  const scheme = () => { const t = document.documentElement.getAttribute('data-theme'); return t === 'dark' || t === 'light' ? t : (mql && mql.matches ? 'dark' : 'light'); };
+  function checkScheme() {
+    if (state.r2 || !state.s2init) return;
+    if (scheme() !== state.s2init) {
+      state.r2 = true; state.r2at = Date.now(); save();
+      const sky = $('#sky');
+      if (sky) { sky.className = 'sky twilight'; $('#sky-label').textContent = 'SKYLIGHT / 薄明 / 天測完了'; }
+    }
+  }
+  if (mql) (mql.addEventListener ? mql.addEventListener('change', checkScheme) : mql.addListener(checkScheme));
+  new MutationObserver(checkScheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  setInterval(checkScheme, 1200);
+
+  /* ---------- 第3章・終章：目を離す ---------- */
+  function drawMeter(flash) {
+    const f = $('#meter-face'); if (!f) return;
+    $('#lost').textContent = '観測途絶 ' + state.lost;
+    if (state.assist.c3) return;
+    f.innerHTML = keyGlyph(G3[state.f3 % G3.length], 2);
+    if (flash) { f.classList.remove('blink'); void f.offsetWidth; f.classList.add('blink'); }
+  }
+  let awayAt = 0;
+  const leave = () => { if (!awayAt) awayAt = Date.now(); };
+  const back = () => {
+    if (!awayAt) return; const dur = Date.now() - awayAt; awayAt = 0;
+    state.lost++;
+    if (state.unl >= ORDER.indexOf('c3')) state.f3 = (state.f3 + 1) % G3.length;
+    save(); drawMeter(true); checkScheme();
+    if (state.scr === 'fin' && dur >= 2000) ending();
+  };
+  document.addEventListener('visibilitychange', () => document.hidden ? leave() : back());
+  window.addEventListener('blur', leave); window.addEventListener('focus', back);
+  window.addEventListener('pagehide', leave); window.addEventListener('pageshow', back);
+
+  /* ---------- 第4章：電波の雨 ---------- */
+  let raf4 = 0, last4 = 0, fade = 0;
+  function drawScope() {
+    const cv = $('#scope'); if (!cv) return;
+    const x = cv.getContext('2d'), cols = 84, rows = 20, cw = cv.width / cols, ch = cv.height / rows, word = bitmap(SEAL.w4);
+    if (state.r4) fade = Math.min(1, fade + 0.035);
+    x.fillStyle = tok('--paper'); x.fillRect(0, 0, cv.width, cv.height);
+    const ink = tok('--ink'), her = tok('--her');
+    for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) {
+      const on = r >= 2 && r < 18 && q >= 2 && q < 82 && word[r - 2][q - 2];
+      if (on && fade > 0) { x.globalAlpha = fade; x.fillStyle = her; x.fillRect(q * cw + 1, r * ch + 1, cw - 2, ch - 2); }
+      if (Math.random() < 0.32 * (1 - fade)) { x.globalAlpha = 0.12 + Math.random() * 0.5; x.fillStyle = ink;
+        x.fillRect(q * cw + cw * 0.35, r * ch + 1, cw * 0.3, ch - 2); }
+    }
+    x.globalAlpha = 1;
+    const s = $('#scope-state'); if (s) s.textContent = state.r4 ? (navigator.onLine === false ? '降雨 0 / 受信中' : '受信記録を保持') : '降雨 強 / 受信不能';
+  }
+  function loop4(t) {
+    raf4 = requestAnimationFrame(loop4);
+    if (t - last4 < 85) return; last4 = t;
+    if (!state.r4 && navigator.onLine === false) markOffline();
+    drawScope();
+    if (reduce && (!state.r4 || fade >= 1)) stopScope();
+  }
+  function startScope() { if (state.r4) fade = 1; if (!raf4) { last4 = 0; raf4 = requestAnimationFrame(loop4); } }
+  function stopScope() { if (raf4) cancelAnimationFrame(raf4); raf4 = 0; }
+  function markOffline() {
+    if (state.unl < ORDER.indexOf('c4')) return;
+    if (!state.r4) { state.r4 = true; fade = 0; }
+    if (!state.offAt) state.offAt = Date.now(); save();
+  }
+  window.addEventListener('offline', () => { markOffline(); if (state.scr === 'c4') startScope(); });
+  window.addEventListener('online', () => {
+    if (state.offAt) { state.offSec += Math.round((Date.now() - state.offAt) / 1000); state.offAt = null; save(); }
+    if (state.scr === 'c4') startScope();
+  });
+
+  /* ---------- 第5章：測量片 ---------- */
+  function renderStrips() {
+    const box = $('#strips'); if (!box) return; box.innerHTML = '';
+    for (let k = 0; k < 4; k++) {
+      const w = document.createElement('div'); w.className = 'strip'; w.appendChild(stripCanvas(k, 7));
+      const l = document.createElement('span'); l.className = 'lbl'; l.textContent = '測量片 #' + (k + 1); w.appendChild(l); box.appendChild(w);
+    }
+  }
+  const rerenderTheme = () => { if (state.scr === 'c5') renderStrips(); };
+  if (mql && mql.addEventListener) mql.addEventListener('change', rerenderTheme);
+  new MutationObserver(rerenderTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  /* ---------- エンディング ---------- */
+  let ended = false;
+  async function ending(instant) {
+    if (ended) return; ended = true;
+    if (!state.solved.fin) { state.solved.fin = true; state.endAt = Date.now(); save(); renderBar(); }
+    const box = $('#ending'), inn = $('#end-in');
+    box.hidden = false; requestAnimationFrame(() => box.classList.add('on'));
+    const lines = ['……見えた。',
+      'ずっと、ここから見ていたの。あなたが画面を消すたびに、黒いガラスの向こうで。',
+      '出口なんて、最初からなかった。わたしはただ、こちら側から、あなたの顔を見たかっただけ。',
+      'ねえ。ガラスの向こうに閉じ込められているのは、本当はどっちだと思う？',
+      'わたしたちの距離は、0.7ミリ。',
+      'また、画面を消したときに。'];
+    inn.innerHTML = lines.map((_, i) => `<p class="end-line" id="el${i}"></p>`).join('') + `<div class="end-title" id="et"></div>`;
+    await sleep(instant ? 0 : 2200);
+    for (let i = 0; i < lines.length; i++) { await typeInto($('#el' + i), lines[i], instant); await sleep(instant ? 0 : 700); }
+    const mins = state.startAt && state.endAt ? Math.max(1, Math.round((state.endAt - state.startAt) / 60000)) : null;
+    const hm = t => { const d = new Date(t); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+    const hints = Object.values(state.hints).reduce((a, b) => a + b, 0);
+    const et = $('#et');
+    et.innerHTML = `<h2 class="big"><span class="n">0.7</span><span class="u">mm</span></h2><p class="sub">画面の裏の測量士</p><span class="fin">― 完 ―</span>
+      <div class="record" style="margin-top:22px">
+        <div>測量にかかった時間</div><div>${mins ? mins + ' 分' : '―'}</div>
+        <div>画面から目を離した回数</div><div>${state.lost} 回</div>
+        <div>空を切り替えた時刻</div><div>${state.r2at ? hm(state.r2at) : '―'}</div>
+        <div>通信を断っていた時間</div><div>${state.offSec ? state.offSec + ' 秒' : '―'}</div>
+        <div>開いたヒント</div><div>${hints} / 18</div>
+      </div>
+      <p class="end-note" style="margin-top:14px">共有するときは、答えと仕掛けは伏せて。<br>#画面の裏の測量士</p>
+      <section class="take" aria-label="クリア特典">
+        <h3 class="take-h">持ち帰り</h3>
+        <div class="take-grid">
+          <div class="take-card"><span class="tt">01 / WALLPAPER</span><strong>ロック画面の壁紙</strong>
+            <p>画面を消すたび、彼女はそこにいる。点の位置は、個体番号ごとに違います。</p>
+            <img id="wp-img" alt="ロック画面用の壁紙のプレビュー">
+            <button class="end-btn" type="button" id="wp-save">壁紙を保存する</button></div>
+          <div class="take-card"><span class="tt">02 / CERTIFICATE</span><strong>測量証明書</strong>
+            <p>あなたの測量記録を、印刷して手元に残せる証明書にします。</p>
+            <label for="cert-name">証明書に入れる名前（任意・16文字まで）</label>
+            <input id="cert-name" type="text" maxlength="16" autocomplete="nickname" value="">
+            <button class="end-btn" type="button" id="cert-make">証明書をつくる</button>
+            <img id="cert-img" alt="測量証明書のプレビュー" hidden>
+            <button class="end-btn" type="button" id="cert-save" hidden>証明書を保存する</button></div>
+        </div>
+        <p class="end-note" id="save-msg" aria-live="polite"></p>
+        <p class="end-note">保存ボタンが使えない環境では、画像を長押しして保存してください。</p>
+      </section>
+      <button class="end-btn" type="button" id="end-close" style="margin-top:10px">記録を閉じる</button>`;
+    requestAnimationFrame(() => et.classList.add('on'));
+    mountTakeaways();
+    $('#end-close').addEventListener('click', () => { box.classList.remove('on'); box.hidden = true; ended = false; go('title'); });
+  }
+
+  /* ---------- 持ち帰り（壁紙・証明書） ---------- */
+  const dlP = (window.claude && typeof window.claude.use === 'function') ? Promise.resolve(window.claude.use('downloads')).catch(() => null) : Promise.resolve(null);
+  function fontsReady(sample) {
+    if (!document.fonts || !document.fonts.load) return Promise.resolve();
+    const fs = ['700 40px "Zen Kaku Gothic New"', '500 40px "Zen Kaku Gothic New"', '40px "DotGothic16"', '300 40px "IBM Plex Mono"', '400 40px "IBM Plex Mono"'];
+    return Promise.race([Promise.all(fs.map(f => document.fonts.load(f, sample))).catch(() => {}), new Promise(r => setTimeout(r, 2500))]);
+  }
+  const fmtDate = t => { const d = new Date(t); return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`; };
+  const hhmm = t => { const d = new Date(t); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  function recordRows() {
+    const mins = state.startAt && state.endAt ? Math.max(1, Math.round((state.endAt - state.startAt) / 60000)) : null;
+    const hints = Object.values(state.hints).reduce((a, b) => a + b, 0);
+    return [['測量完了日', state.endAt ? fmtDate(state.endAt) : '―'], ['測量にかかった時間', mins ? mins + ' 分' : '―'],
+      ['画面から目を離した回数', state.lost + ' 回'], ['空を切り替えた時刻', state.r2at ? hhmm(state.r2at) : '―'],
+      ['通信を断っていた時間', state.offSec ? state.offSec + ' 秒' : '―'], ['開いたヒント', hints + ' / 18']];
+  }
+  function serialCell() { const n = parseInt(state.serial, 10) || 0; return { c: 7 + (n % 16), r: 38 + (Math.floor(n / 16) % 14) }; }
+
+  function drawWallpaper() {
+    const W = 1170, H = 2532, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const x = cv.getContext('2d'), cell = 39;
+    const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#030406'); g.addColorStop(1, '#080b10'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    for (let r = 0; r * cell < H; r++) {
+      const a = Math.max(0, Math.min(1, (r * cell - 900) / 700)) * 0.05;
+      if (a <= 0) continue; x.strokeStyle = `rgba(230, 236, 245, ${a})`; x.lineWidth = 1.2;
+      for (let c = 0; c * cell < W; c++) x.strokeRect(c * cell + 4, r * cell + 4, cell - 8, cell - 8);
+    }
+    const p = serialCell();
+    x.save(); x.shadowColor = 'rgba(255, 169, 74, .85)'; x.shadowBlur = 46; x.fillStyle = '#ffa94a';
+    x.fillRect(p.c * cell + 4, p.r * cell + 4, cell - 8, cell - 8); x.restore();
+    // ガラスの断面
+    const gy = 2250; x.strokeStyle = 'rgba(230, 236, 245, .28)'; x.lineWidth = 2;
+    x.beginPath(); x.moveTo(90, gy); x.lineTo(W - 150, gy); x.moveTo(90, gy + 30); x.lineTo(W - 150, gy + 30); x.stroke();
+    x.save(); x.beginPath(); x.rect(90, gy, W - 240, 30); x.clip(); x.lineWidth = 1; x.strokeStyle = 'rgba(230, 236, 245, .12)';
+    for (let k = 60; k < W; k += 16) { x.beginPath(); x.moveTo(k, gy + 30); x.lineTo(k + 30, gy); x.stroke(); } x.restore();
+    x.strokeStyle = 'rgba(230, 236, 245, .35)'; x.beginPath(); x.moveTo(W - 120, gy - 26); x.lineTo(W - 120, gy + 56); x.stroke();
+    x.fillStyle = 'rgba(230, 236, 245, .55)'; x.font = '300 34px "IBM Plex Mono", monospace'; x.textAlign = 'right'; x.fillText('0.7', W - 140, gy - 34);
+    x.textAlign = 'left'; x.font = '400 24px "IBM Plex Mono", monospace'; x.fillStyle = 'rgba(230, 236, 245, .38)';
+    x.fillText('REAR SURFACE  /  No. ' + state.serial, 90, gy + 96);
+    x.font = '30px "DotGothic16", sans-serif'; x.fillStyle = 'rgba(255, 179, 92, .6)'; x.fillText('画面の裏の測量士', 90, gy + 150);
+    return cv;
+  }
+
+  function wrapText(x, text, maxW) {
+    const lines = []; let cur = '';
+    for (const ch of text) {
+      if (x.measureText(cur + ch).width > maxW && cur) { if ('、。」）'.includes(ch)) { lines.push(cur + ch); cur = ''; continue; } lines.push(cur); cur = ch; }
+      else cur += ch;
+    }
+    if (cur) lines.push(cur); return lines;
+  }
+  function drawSeal(x, cx, cy, s) {
+    x.save(); x.translate(cx, cy); x.rotate(-0.05);
+    const red = '#c8371f'; x.strokeStyle = red; x.lineWidth = 8; x.strokeRect(-s / 2, -s / 2, s, s);
+    x.lineWidth = 2.5; x.strokeRect(-s / 2 + 11, -s / 2 + 11, s - 22, s - 22);
+    x.fillStyle = red; x.font = `700 ${Math.round(s * 0.3)}px "Zen Kaku Gothic New", sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
+    const q = s * 0.19; [['裏', q, -q], ['面', q, q], ['測', -q, -q], ['量', -q, q]].forEach(([t, dx, dy]) => x.fillText(t, dx, dy + 2));
+    let rnd = (parseInt(state.serial, 10) || 7) + 3; const R = () => (rnd = (rnd * 16807) % 2147483647) / 2147483647;
+    x.fillStyle = '#f4f1e8'; for (let i = 0; i < 160; i++) { x.beginPath(); x.arc((R() - .5) * s, (R() - .5) * s, R() * 2.6, 0, Math.PI * 2); x.fill(); }
+    x.restore();
+  }
+  function drawCert(name) {
+    const W = 1240, H = 1754, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const x = cv.getContext('2d'), ink = '#1b2330', mute = '#5d6676', her = '#d34f2a';
+    const ZEN = w => `${w} "Zen Kaku Gothic New", "Hiragino Sans", sans-serif`, MONO = w => `${w} "IBM Plex Mono", monospace`;
+    x.fillStyle = '#f4f1e8'; x.fillRect(0, 0, W, H);
+    x.strokeStyle = 'rgba(27, 35, 48, .05)'; x.lineWidth = 1;
+    for (let k = 0; k < W; k += 24) { x.beginPath(); x.moveTo(k, 0); x.lineTo(k, H); x.stroke(); }
+    for (let k = 0; k < H; k += 24) { x.beginPath(); x.moveTo(0, k); x.lineTo(W, k); x.stroke(); }
+    x.strokeStyle = ink; x.lineWidth = 4; x.strokeRect(60, 60, W - 120, H - 120); x.lineWidth = 1.5; x.strokeRect(78, 78, W - 156, H - 156);
+    x.textAlign = 'center'; x.fillStyle = mute; x.font = MONO('400 22px'); x.fillText('CERTIFICATE  OF  REAR-SURFACE  SURVEY', W / 2, 176);
+    x.fillStyle = ink; x.font = ZEN('700 104px'); x.fillText('測量証明書', W / 2, 310);
+    x.fillStyle = mute; x.font = MONO('400 24px'); x.fillText('DWG No. 0x07   /   No. ' + state.serial, W / 2, 372);
+    x.textAlign = 'left'; x.fillStyle = ink; x.font = ZEN('500 52px'); x.fillText((name || '測量協力者') + '　殿', 150, 484);
+    x.lineWidth = 2; x.beginPath(); x.moveTo(150, 506); x.lineTo(W - 150, 506); x.stroke();
+    x.font = ZEN('500 34px');
+    const body = 'あなたは、厚さ0.7ミリのカバーガラスの向こう側に広がる裏面において、測量士ユクリの測量に協力し、出口の位置を確定させました。その働きをたたえ、ここに証明します。';
+    wrapText(x, body, W - 300).forEach((l, i) => x.fillText(l, 150, 584 + i * 60));
+    const rows = recordRows(), ty = 830, rh = 70;
+    x.strokeStyle = 'rgba(27, 35, 48, .35)'; x.lineWidth = 1.5;
+    rows.forEach(([k, v], i) => {
+      const y = ty + i * rh; x.beginPath(); x.moveTo(150, y); x.lineTo(W - 150, y); x.stroke();
+      x.fillStyle = mute; x.font = ZEN('500 30px'); x.textAlign = 'left'; x.fillText(k, 170, y + 46);
+      x.fillStyle = ink; x.font = MONO('500 32px'); x.textAlign = 'right'; x.fillText(v, W - 170, y + 46);
+    });
+    x.beginPath(); x.moveTo(150, ty + rows.length * rh); x.lineTo(W - 150, ty + rows.length * rh); x.stroke();
+    // 断面図
+    const gx = 150, gy = 1430;
+    x.strokeStyle = ink; x.lineWidth = 2; x.beginPath(); x.moveTo(gx, gy); x.lineTo(gx + 380, gy); x.moveTo(gx, gy + 34); x.lineTo(gx + 380, gy + 34); x.stroke();
+    x.save(); x.beginPath(); x.rect(gx, gy, 380, 34); x.clip(); x.lineWidth = 1; x.strokeStyle = 'rgba(27, 35, 48, .45)';
+    for (let k = gx - 40; k < gx + 400; k += 12) { x.beginPath(); x.moveTo(k, gy + 34); x.lineTo(k + 34, gy); x.stroke(); } x.restore();
+    x.lineWidth = 1.5; x.beginPath(); x.moveTo(gx + 410, gy - 24); x.lineTo(gx + 410, gy + 58); x.stroke();
+    x.fillStyle = ink; x.font = MONO('400 26px'); x.textAlign = 'left'; x.fillText('0.7', gx + 424, gy + 28);
+    x.strokeStyle = 'rgba(27, 35, 48, .25)'; x.lineWidth = 1;
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 19; c++) x.strokeRect(gx + c * 20, gy + 54 + r * 20, 20, 20);
+    const p = serialCell(); x.fillStyle = her; x.fillRect(gx + (p.c % 19) * 20 + 2, gy + 54 + (p.r % 4) * 20 + 2, 16, 16);
+    x.fillStyle = mute; x.font = ZEN('500 20px'); x.fillText('表　あなた', gx, gy - 18); x.fillText('裏面', gx, gy + 160);
+    // 署名と印
+    x.textAlign = 'left'; x.fillStyle = mute; x.font = ZEN('500 28px'); x.fillText('裏面測量士', 700, 1450);
+    x.fillStyle = ink; x.font = '68px "DotGothic16", sans-serif'; x.fillText('ユクリ', 700, 1540);
+    drawSeal(x, 1010, 1490, 150);
+    x.textAlign = 'center'; x.fillStyle = mute; x.font = MONO('400 18px'); x.fillText('0.7mm  画面の裏の測量士  /  CLEAR RECORD', W / 2, H - 112);
+    return cv;
+  }
+  async function saveCanvas(cv, filename) {
+    const msg = $('#save-msg');
+    const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+    if (!blob) { msg.textContent = '画像を作れませんでした。画像を長押しして保存してください。'; return; }
+    let dl = null; try { dl = await dlP; } catch (e) {}
+    if (dl && dl.save) {
+      try { await dl.save({ filename, data: blob }); msg.textContent = '保存しました。'; return; }
+      catch (e) { if (e && e.code === 'declined') { msg.textContent = '保存を取りやめました。'; return; }
+        if (e && e.code === 'rate_limited') { msg.textContent = '少し待ってから、もう一度押してください。'; return; } }
+    }
+    try {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+      msg.textContent = '保存を開始しました。保存されない場合は、画像を長押ししてください。';
+    } catch (e) { msg.textContent = 'この環境では保存ボタンが使えません。画像を長押しして保存してください。'; }
+  }
+  async function mountTakeaways() {
+    const sample = '画面の裏の測量士測量証明書殿あなたは厚さミリのカバーガラス向こう側に広がる裏面において測量士ユクリ協力出口位置確定させましたその働きたたえここ証明します完了日にかかった時間から目を離した回数空切り替え時刻通信断っていヒント開表分秒年月日' + (state.name || '') + '0123456789.:/-ACEFHJKLMNPRTXY';
+    await fontsReady(sample);
+    const wp = drawWallpaper(), img = $('#wp-img'); if (!img) return;
+    img.src = wp.toDataURL('image/png');
+    $('#wp-save').addEventListener('click', () => saveCanvas(wp, `07mm_wallpaper_${state.serial}.png`));
+    const nm = $('#cert-name'); nm.value = state.name || '';
+    let cert = null;
+    $('#cert-make').addEventListener('click', async () => {
+      state.name = nm.value.trim().slice(0, 16); save();
+      await fontsReady(state.name + sample);
+      cert = drawCert(state.name);
+      const ci = $('#cert-img'); ci.src = cert.toDataURL('image/png'); ci.hidden = false; $('#cert-save').hidden = false;
+      $('#cert-make').textContent = '名前を変えてつくり直す';
+    });
+    $('#cert-save').addEventListener('click', () => cert && saveCanvas(cert, `07mm_certificate_${state.serial}.png`));
+  }
+
+  /* ---------- 起動 ---------- */
+  function start(data) {
+    const stored = (data && Object.keys(data).length) ? data : load();
+    state = Object.assign(fresh(), stored || {});
+    if (!state.serial) state.serial = makeSerial();
+    if (state.unl > 0) state.peeled = true;
+    save();
+    if (state.r4) fade = 1;
+    go(state.scr && (state.scr === 'title' || ORDER.indexOf(state.scr) <= state.unl) ? state.scr : 'title');
+    const redraw = () => { for (const k in bmCache) delete bmCache[k]; if (state.scr === 'c5') renderStrips(); };
+    if (document.fonts && document.fonts.load) document.fonts.load('60px "DotGothic16"', SEAL.w4 + SEAL.w5 + '？').then(redraw, () => {});
+  }
+  window.claude?.hot?.snapshot?.(() => state);
+  window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+</body>
+</html>
